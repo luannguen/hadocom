@@ -99,6 +99,10 @@
     border-color: hsl(var(--cyan-glow) / 0.3);
   }
 
+  .bg-cyan {
+    background-color: hsl(var(--cyan-glow));
+  }
+
   .glass-card {
     background: hsl(var(--foreground) / 0.03);
     backdrop-filter: blur(16px);

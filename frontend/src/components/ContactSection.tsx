@@ -3,6 +3,8 @@ import { Phone, Mail, MapPin, Globe, Send, CheckCircle } from "lucide-react";
 import { z } from "zod";
 import ScrollReveal from "./ScrollReveal";
 import { useTranslation } from "react-i18next";
+import { useSubmitContact } from "@/hooks/useData";
+import { Loader2 } from "lucide-react";
 
 type FormData = { name: string; email: string; phone: string; service: string; message: string };
 
@@ -11,6 +13,9 @@ const ContactSection = () => {
   const [form, setForm] = useState<FormData>({ name: "", email: "", phone: "", service: "", message: "" });
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorStatus, setErrorStatus] = useState<string | null>(null);
+  const submitContact = useSubmitContact();
 
   const contactSchema = z.object({
     name: z.string().trim().min(1, t("contact.errName")).max(100),
@@ -35,7 +40,7 @@ const ContactSection = () => {
     t("contact.serviceOther"),
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = contactSchema.safeParse(form);
     if (!result.success) {
@@ -48,7 +53,18 @@ const ContactSection = () => {
       return;
     }
     setErrors({});
-    setSubmitted(true);
+    setLoading(true);
+    setErrorStatus(null);
+    
+    try {
+      await submitContact(form);
+      setSubmitted(true);
+    } catch (err: any) {
+      console.error("Submission error:", err);
+      setErrorStatus(t("common.errorOccurred")); // Using a generic error key or fallback
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (field: keyof FormData, value: string) => {
@@ -136,8 +152,18 @@ const ContactSection = () => {
                       placeholder={t("contact.messagePlaceholder")} />
                     {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
                   </div>
-                  <button type="submit" className="w-full flex items-center justify-center gap-2 bg-secondary text-secondary-foreground px-6 py-4 rounded-xl font-semibold text-lg hover:brightness-110 transition shadow-lg shadow-secondary/20">
-                    <Send className="w-5 h-5" /> {t("contact.submit")}
+                  {errorStatus && (
+                    <div className="p-4 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-xl">
+                      {errorStatus}
+                    </div>
+                  )}
+                  <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 bg-secondary text-secondary-foreground px-6 py-4 rounded-xl font-semibold text-lg hover:brightness-110 transition shadow-lg shadow-secondary/20 disabled:opacity-70 disabled:cursor-not-allowed">
+                    {loading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Send className="w-5 h-5" />
+                    )} 
+                    {loading ? t("common.sending") : t("contact.submit")}
                   </button>
                 </form>
               )}

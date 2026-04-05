@@ -47,6 +47,30 @@ export interface TeamMember {
     icon: string;
 }
 
+export interface Job {
+    id: string;
+    title: string;
+    slug: string;
+    description?: string;
+    requirements?: string;
+    benefits?: string;
+    location?: string;
+    type?: string;
+    salary?: string;
+    status: 'opening' | 'closed' | 'draft';
+    deadline?: string;
+    created_at?: string;
+}
+
+export interface JobApplication {
+    job_id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+    cv_url: string;
+    message?: string;
+}
+
 export interface Banner {
     id: string;
     title: string;
@@ -133,6 +157,40 @@ export const useTeam = () => {
     });
 };
 
+export const useJobs = () => {
+    return useQuery({
+      queryKey: ["jobs"],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from("jobs")
+          .select("*")
+          .eq("status", "opening")
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        return data as Job[];
+      },
+    });
+};
+
+export const useApplyJob = () => {
+    return async (application: JobApplication) => {
+        const { data, error } = await supabase
+            .from("job_applications")
+            .insert([
+                {
+                    ...application,
+                    status: 'pending',
+                    created_at: new Date().toISOString()
+                }
+            ])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        return data;
+    };
+};
+
 export const useBanner = (position: string = 'home_main') => {
     return useQuery({
         queryKey: ["banner", position],
@@ -164,4 +222,27 @@ export const useSettings = () => {
             return settingsMap;
         },
     });
+};
+export const useSubmitContact = () => {
+    return async (contact: { name: string; email: string; phone: string; service: string; message: string }) => {
+        const { data, error } = await supabase
+            .from("contacts")
+            .insert([
+                {
+                    name: contact.name,
+                    email: contact.email,
+                    phone: contact.phone,
+                    subject: contact.service, // Map 'service' to 'subject' in the database
+                    message: contact.message,
+                    status: 'new',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }
+            ])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        return data;
+    };
 };

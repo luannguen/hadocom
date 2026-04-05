@@ -62,6 +62,7 @@ const Navbar = () => {
     { label: t("nav.news"), href: "/tin-tuc" },
     { label: t("nav.gallery"), href: "/thu-vien" },
     { label: t("nav.events"), href: "/su-kien" },
+    { label: t("nav.recruitment"), href: "/tuyen-dung" },
   ];
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];

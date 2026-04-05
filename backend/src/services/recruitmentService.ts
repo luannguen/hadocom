@@ -65,14 +65,27 @@ export const recruitmentService = {
     // Application Management
     async getApplications(): Promise<Result<JobApplication[]>> {
         try {
+            console.log('Fetching applications from job_applications table...');
             const { data, error } = await supabase
                 .from('job_applications')
                 .select('*, job:jobs(title)')
                 .order('created_at', { ascending: false });
             
-            if (error) return failure(error.message);
+            if (error) {
+                console.error('❌ Supabase fetch error:', error);
+                return failure(error.message);
+            }
+            
+            console.log(`✅ Fetched ${data?.length || 0} applications.`);
+            if (data?.length === 0) {
+                console.log('Wait, table is empty? Checking without join...');
+                const { data: rawData } = await supabase.from('job_applications').select('*');
+                console.log('Raw data without join:', rawData);
+            }
+            
             return success(data as JobApplication[]);
         } catch (error: any) {
+            console.error('❌ Admin recruitmentService exception:', error);
             return failure(error.message || 'Failed to fetch applications');
         }
     },

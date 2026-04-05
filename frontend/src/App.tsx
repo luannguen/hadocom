@@ -10,6 +10,7 @@ import PolicyPage from "./pages/PolicyPage.tsx";
 import NewsPage from "./pages/NewsPage.tsx";
 import GalleryPage from "./pages/GalleryPage.tsx";
 import EventsPage from "./pages/EventsPage.tsx";
+import RecruitmentPage from "./pages/RecruitmentPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/tin-tuc" element={<NewsPage />} />
           <Route path="/thu-vien" element={<GalleryPage />} />
           <Route path="/su-kien" element={<EventsPage />} />
+          <Route path="/tuyen-dung" element={<RecruitmentPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
