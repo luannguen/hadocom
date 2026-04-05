@@ -1,4 +1,3 @@
-
 import { supabase } from "@/lib/supabase";
 import { v4 as uuidv4 } from 'uuid';
 import { Project, Result, success, failure, ErrorCodes } from "@/types";
@@ -38,7 +37,7 @@ export const projectService = {
             const { data, error } = await supabase
                 .from('projects')
                 .insert([{ ...project, id: uuidv4() }])
-                .select()
+                .select('*')
                 .single();
 
             if (error) return failure(error.message, ErrorCodes.DB_ERROR);
@@ -54,7 +53,7 @@ export const projectService = {
                 .from('projects')
                 .update(updates)
                 .eq('id', id)
-                .select()
+                .select('*')
                 .single();
 
             if (error) return failure(error.message, ErrorCodes.DB_ERROR);

@@ -1,11 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { projectService } from '@/services/projectService';
-import { productService } from '@/services/productService'; // Reusing for getCategories
+import { categoryService } from '@/services/categoryService';
 import { Project, Category } from '@/types';
 import { Plus, Edit2, Trash2, Search, Loader2, Briefcase } from 'lucide-react';
 import ProjectForm from '@/components/admin/projects/ProjectForm';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 const ProjectsPage: React.FC = () => {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -27,17 +28,21 @@ const ProjectsPage: React.FC = () => {
         try {
             const [projResult, catResult] = await Promise.all([
                 projectService.getProjects(),
-                productService.getCategories()
+                categoryService.getCategories('project')
             ]);
 
             if (projResult.success) {
                 setProjects(projResult.data || []);
+            } else {
+                toast.error(t('projects.errors.fetch_failed'));
             }
+
             if (catResult.success) {
                 setCategories(catResult.data || []);
             }
         } catch (error) {
             console.error('Failed to load data', error);
+            toast.error(t('common.errors.unknown'));
         } finally {
             setLoading(false);
         }
@@ -79,10 +84,14 @@ const ProjectsPage: React.FC = () => {
         }
     };
 
-    const filteredProjects = projects.filter(project =>
-        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.client?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProjects = projects.filter(project => {
+        const name = project?.name || '';
+        const client = project?.client || '';
+        const search = searchTerm.toLowerCase();
+        
+        return name.toLowerCase().includes(search) || 
+               client.toLowerCase().includes(search);
+    });
 
     if (isEditing) {
         return (
