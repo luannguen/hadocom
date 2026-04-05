@@ -1,12 +1,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { eventService } from '@/services/eventService';
-import { productService } from '@/services/productService'; // Reusing for getCategories for now, ideally should verify if categories are shared
-import { Event, Category } from '@/components/data/types';
+import { categoryService } from '@/services/categoryService';
+import { Event, Category } from '@/types';
 import { Plus, Edit2, Trash2, Search, Loader2, Calendar } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import EventForm from '@/components/admin/events/EventForm';
+import { useTranslation } from 'react-i18next';
 
 const EventsPage: React.FC = () => {
+    const { t } = useTranslation();
     const [events, setEvents] = useState<Event[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
@@ -23,13 +27,18 @@ const EventsPage: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [eventsData, catResult] = await Promise.all([
+            const [eventsResult, catResult] = await Promise.all([
                 eventService.getEvents(),
-                productService.getCategories() // Assuming categories are shared or this fetches all. Ideally create a generic categoryService
+                categoryService.getCategories('event')
             ]);
 
-            setEvents(eventsData || []);
-            if (catResult.success) setCategories(catResult.data || []);
+            if (eventsResult.success) {
+                setEvents(eventsResult.data || []);
+            }
+            
+            if (catResult.success) {
+                setCategories(catResult.data || []);
+            }
         } catch (error) {
             console.error('Failed to load data', error);
         } finally {
@@ -38,42 +47,52 @@ const EventsPage: React.FC = () => {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this event?')) return;
+        if (!confirm(t('confirm_delete_event') || 'Are you sure?')) return;
 
         try {
-            await eventService.deleteEvent(id);
-            setEvents(prev => prev.filter(e => e.id !== id));
+            const result = await eventService.deleteEvent(id);
+            if (result.success) {
+                setEvents(prev => prev.filter(e => e.id !== id));
+            } else {
+                alert(result.error || t('delete_event_fail'));
+            }
         } catch (error) {
-            alert('Failed to delete event');
+            alert(t('delete_event_fail'));
         }
     };
 
     const handleSave = async (eventData: Partial<Event>) => {
         try {
+            let result;
             if (editingEvent?.id) {
-                await eventService.updateEvent(editingEvent.id, eventData);
+                result = await eventService.updateEvent(editingEvent.id, eventData);
             } else {
-                await eventService.createEvent(eventData as any);
+                result = await eventService.createEvent(eventData as any);
             }
-            setIsEditing(false);
-            setEditingEvent(undefined);
-            loadData();
+
+            if (result.success) {
+                setIsEditing(false);
+                setEditingEvent(undefined);
+                loadData();
+            } else {
+                alert(result.error || t('save_event_fail'));
+            }
         } catch (error) {
-            alert('Failed to save event');
+            alert(t('save_event_fail'));
         }
     };
 
-    const filteredEvents = events.filter(event =>
-        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const filteredEvents = Array.isArray(events) ? events.filter(event =>
+        event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.location?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    ) : [];
 
     if (isEditing) {
         return (
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <h1 className="text-2xl font-semibold text-gray-900">
-                        {editingEvent ? 'Edit Event' : 'Create Event'}
+                        {editingEvent ? t('edit_event') : t('create_event')}
                     </h1>
                 </div>
                 <EventForm
@@ -89,14 +108,13 @@ const EventsPage: React.FC = () => {
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h1 className="text-2xl font-semibold text-gray-900">Events</h1>
-                <button
+                <h1 className="text-2xl font-semibold text-gray-900">{t('events_management')}</h1>
+                <Button
                     onClick={() => { setEditingEvent(undefined); setIsEditing(true); }}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Event
-                </button>
+                    {t('add_event')}
+                </Button>
             </div>
 
             <div className="bg-white p-4 rounded-lg shadow flex flex-col sm:flex-row gap-4">
@@ -104,10 +122,8 @@ const EventsPage: React.FC = () => {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Search className="h-5 w-5 text-gray-400" />
                     </div>
-                    <input
-                        type="text"
-                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md border p-2"
-                        placeholder="Search events..."
+                    <Input
+                        placeholder={t('search_events_placeholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -122,26 +138,26 @@ const EventsPage: React.FC = () => {
                 ) : filteredEvents.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-8 text-gray-500">
                         <Calendar className="h-12 w-12 mb-2 opacity-50" />
-                        <p>No events found.</p>
+                        <p>{t('no_events')}</p>
                     </div>
                 ) : (
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Event
+                                    {t('event_header')}
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
+                                    {t('status_header')}
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Date
+                                    {t('date_header')}
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Location
+                                    {t('location_header')}
                                 </th>
                                 <th scope="col" className="relative px-6 py-3">
-                                    <span className="sr-only">Actions</span>
+                                    <span className="sr-only">{t('actions_header')}</span>
                                 </th>
                             </tr>
                         </thead>
@@ -170,7 +186,7 @@ const EventsPage: React.FC = () => {
                                             ${event.status === 'upcoming' ? 'bg-blue-100 text-blue-800' :
                                                 event.status === 'ongoing' ? 'bg-green-100 text-green-800' :
                                                     'bg-gray-100 text-gray-800'}`}>
-                                            {event.status}
+                                            {t(`status_${event.status}`)}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

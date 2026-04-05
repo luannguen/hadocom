@@ -22,7 +22,7 @@ const SettingsPage: React.FC = () => {
         setLoading(true);
         const result = await settingsService.getSettings();
         if (result.success && result.data) {
-            const settingMap = result.data.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {} as Record<string, string>);
+            const settingMap = result.data.reduce((acc: Record<string, string>, curr: { key: string; value: string }) => ({ ...acc, [curr.key]: curr.value }), {} as Record<string, string>);
             setSettings(settingMap);
         } else {
             toast.error(t('load_settings_fail'));
@@ -107,15 +107,15 @@ const SettingsPage: React.FC = () => {
                         <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">{t('brand_identity')}</h3>
                         <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6">
                             <div className="flex-shrink-0">
-                                {settings['site_logo'] ? (
+                                {settings['logo_url'] ? (
                                     <div className="relative group">
                                         <img
-                                            src={settings['site_logo']}
+                                            src={settings['logo_url']}
                                             alt="Site Logo"
                                             className="h-24 w-auto object-contain bg-gray-50 border rounded-md p-2"
                                         />
                                         <button
-                                            onClick={() => handleRemoveImage('site_logo')}
+                                            onClick={() => handleRemoveImage('logo_url')}
                                             className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
                                             title="Remove Logo"
                                         >
@@ -149,7 +149,7 @@ const SettingsPage: React.FC = () => {
                                         type="file"
                                         className="hidden"
                                         accept="image/*"
-                                        onChange={(e) => handleImageUpload(e, 'site_logo', setUploadingLogo)}
+                                        onChange={(e) => handleImageUpload(e, 'logo_url', setUploadingLogo)}
                                         disabled={uploadingLogo}
                                     />
                                 </div>
@@ -271,10 +271,10 @@ const SettingsPage: React.FC = () => {
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('company_name')}</label>
                                 <input
                                     type="text"
-                                    value={settings['company_name'] || ''}
-                                    onChange={(e) => handleChange('company_name', e.target.value)}
+                                    value={settings['site_name'] || ''}
+                                    onChange={(e) => handleChange('site_name', e.target.value)}
                                     className="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="Tổng công ty Kỹ thuật lạnh Việt Nam (VRC)"
+                                    placeholder="Công ty TNHH HADOCOM"
                                 />
                             </div>
                             <div>
@@ -328,10 +328,10 @@ const SettingsPage: React.FC = () => {
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('address')}</label>
                                 <input
                                     type="text"
-                                    value={settings['contact_address'] || ''}
-                                    onChange={(e) => handleChange('contact_address', e.target.value)}
+                                    value={settings['company_address'] || ''}
+                                    onChange={(e) => handleChange('company_address', e.target.value)}
                                     className="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="123 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh"
+                                    placeholder="TP. Hồ Chí Minh, Việt Nam"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -364,7 +364,7 @@ const SettingsPage: React.FC = () => {
                                         value={settings['contact_email'] || ''}
                                         onChange={(e) => handleChange('contact_email', e.target.value)}
                                         className="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        placeholder="info@vrcorp.vn"
+                                        placeholder="chi.nt@hadocom.vn"
                                     />
                                 </div>
                                 <div>

@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { newsService } from '@/services/newsService';
-import { News } from '@/components/data/types';
+import { News } from '@/types';
 import { Plus, Edit2, Trash2, Search, Loader2, FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,8 +25,12 @@ const NewsPage: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const data = await newsService.getNews();
-            setNewsList(data);
+            const result = await newsService.getNews();
+            if (result.success) {
+                setNewsList(result.data || []);
+            } else {
+                console.error("Failed to load news:", result.error);
+            }
         } catch (error) {
             console.error('Failed to load news', error);
         } finally {
@@ -38,25 +42,37 @@ const NewsPage: React.FC = () => {
         if (!confirm(t('confirm_delete_news'))) return;
 
         try {
-            await newsService.deleteNews(id);
-            setNewsList(prev => prev.filter(n => n.id !== id));
+            const result = await newsService.deleteNews(id);
+            if (result.success) {
+                setNewsList(prev => prev.filter(n => n.id !== id));
+            } else {
+                alert(t('delete_news_fail') + ': ' + result.error);
+            }
         } catch (error) {
-            alert(t('delete_news_fail'));
+            console.error('Delete error:', error);
+            alert(t('delete_error_occurred'));
         }
     };
 
     const handleSave = async (newsData: Partial<News>) => {
         try {
+            let result;
             if (editingNews?.id) {
-                await newsService.updateNews(editingNews.id, newsData);
+                result = await newsService.updateNews(editingNews.id, newsData);
             } else {
-                await newsService.createNews(newsData as any);
+                result = await newsService.createNews(newsData as any);
             }
-            setIsEditing(false);
-            setEditingNews(undefined);
-            loadData();
+
+            if (result.success) {
+                setIsEditing(false);
+                setEditingNews(undefined);
+                loadData();
+            } else {
+                alert(t('save_news_fail') + ': ' + result.error);
+            }
         } catch (error) {
-            alert(t('save_news_fail'));
+            console.error('Save error:', error);
+            alert(t('save_error_occurred'));
         }
     };
 

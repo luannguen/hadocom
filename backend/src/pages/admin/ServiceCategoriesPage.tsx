@@ -26,7 +26,8 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
-import { serviceService, ServiceCategory } from "@/services/serviceService";
+import { serviceService } from "@/services/serviceService";
+import { ServiceCategory } from "@/types";
 import ServiceCategoryForm from "@/components/admin/services/ServiceCategoryForm";
 
 export default function ServiceCategoriesPage() {

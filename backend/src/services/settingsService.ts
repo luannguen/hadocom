@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { SiteSetting, Result, success, failure } from "@/components/data/types";
+import { SiteSetting, Result, success, failure } from "@/types";
 
 export const settingsService = {
     async getSettings(): Promise<Result<SiteSetting[]>> {
@@ -11,9 +11,9 @@ export const settingsService = {
 
             if (error) throw error;
             return success(data as SiteSetting[]);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching settings:', error);
-            return failure('Failed to fetch settings');
+            return failure(error.message || 'Failed to fetch settings');
         }
     },
 
@@ -28,13 +28,12 @@ export const settingsService = {
 
             if (error) throw error;
             return success(data as SiteSetting);
-        } catch (error) {
+        } catch (error: any) {
             console.error(`Error updating setting ${key}:`, error);
-            return failure(`Failed to update setting ${key}`);
+            return failure(error.message || `Failed to update setting ${key}`);
         }
     },
 
-    // Create generic update for bulk
     async updateSettings(settings: { key: string; value: string }[]): Promise<Result<void>> {
         try {
             const { error } = await supabase
@@ -43,9 +42,9 @@ export const settingsService = {
 
             if (error) throw error;
             return success(undefined);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error updating settings:', error);
-            return failure('Failed to update settings');
+            return failure(error.message || 'Failed to update settings');
         }
     }
 };

@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { NavigationItem, Result, success, failure } from "@/components/data/types";
+import { NavigationItem, Result, success, failure } from "@/types";
 
 export const navigationService = {
     async getNavigationItems(): Promise<Result<NavigationItem[]>> {

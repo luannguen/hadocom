@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { categoryService } from '@/services/categoryService';
-import { Category, ContentType } from '@/components/data/types';
+import { Category, ContentType } from '@/types';
 import { Plus, Edit2, Trash2, Search, Loader2, FolderOpen } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,8 +42,12 @@ const CategoriesPage: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const data = await categoryService.getCategories(activeTab);
-            setCategories(data);
+            const result = await categoryService.getCategories(activeTab);
+            if (result.success) {
+                setCategories(result.data || []);
+            } else {
+                console.error('Failed to load categories', result.error);
+            }
         } catch (error) {
             console.error('Failed to load categories', error);
         } finally {
@@ -95,8 +99,12 @@ const CategoriesPage: React.FC = () => {
     const handleDelete = async (id: string) => {
         if (!confirm(t('confirm_delete_category'))) return;
         try {
-            await categoryService.deleteCategory(id);
-            setCategories(prev => prev.filter(c => c.id !== id));
+            const result = await categoryService.deleteCategory(id);
+            if (result.success) {
+                setCategories(prev => prev.filter(c => c.id !== id));
+            } else {
+                alert(result.error || t('delete_category_fail'));
+            }
         } catch (error) {
             alert(t('delete_category_fail'));
         }

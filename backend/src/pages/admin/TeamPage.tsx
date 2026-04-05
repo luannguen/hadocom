@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { teamService } from '@/services/teamService';
-import { TeamMember } from '@/components/data/types';
+import { TeamMember } from '@/types';
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2, GripVertical, Wand2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -29,8 +29,12 @@ const TeamPage = () => {
     const loadMembers = async () => {
         setLoading(true);
         try {
-            const data = await teamService.getAll();
-            setMembers(data);
+            const result = await teamService.getAll();
+            if (result.success) {
+                setMembers(result.data || []);
+            } else {
+                console.error(result.error);
+            }
         } catch (error) {
             console.error(error);
         } finally {
@@ -51,8 +55,12 @@ const TeamPage = () => {
     const handleDelete = async (id: string) => {
         if (!window.confirm(t('confirm_delete_member'))) return;
         try {
-            await teamService.delete(id);
-            await loadMembers();
+            const result = await teamService.delete(id);
+            if (result.success) {
+                await loadMembers();
+            } else {
+                console.error(result.error);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -60,13 +68,20 @@ const TeamPage = () => {
 
     const handleSave = async (data: Partial<TeamMember>) => {
         try {
+            let result;
             if (editingMember) {
-                await teamService.update(editingMember.id, data);
+                result = await teamService.update(editingMember.id, data);
             } else {
-                await teamService.create(data);
+                result = await teamService.create(data);
             }
-            setView('list');
-            loadMembers();
+
+            if (result.success) {
+                setView('list');
+                loadMembers();
+            } else {
+                console.error(result.error);
+                alert(result.error || t('save_failed'));
+            }
         } catch (error) {
             console.error(error);
         }

@@ -10,7 +10,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { categoryService } from '@/services/categoryService';
-import { News, Category } from '@/components/data/types';
+import { News, Category } from '@/types';
 import { ArrowLeft, ExternalLink, Image as ImageIcon } from 'lucide-react';
 import { ImagePickerModal } from '@/components/admin/media/ImagePickerModal';
 
@@ -49,8 +49,12 @@ const NewsForm: React.FC<NewsFormProps> = ({ initialData, onSave, onCancel }) =>
 
     const loadCategories = async () => {
         try {
-            const data = await categoryService.getCategories('news');
-            setCategories(data);
+            const result = await categoryService.getCategories('news');
+            if (result.success) {
+                setCategories(result.data || []);
+            } else {
+                console.error('Failed to load categories', result.error);
+            }
         } catch (error) {
             console.error('Failed to load categories', error);
         }

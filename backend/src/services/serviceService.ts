@@ -1,46 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { Result, success, failure, ErrorCodes } from '@/components/data/types';
-
-export interface ServiceCategory {
-    id: string;
-    name: string;
-    slug: string;
-    description?: string;
-    display_order: number;
-    is_active: boolean;
-    created_at: string;
-    updated_at: string;
-}
-
-export interface Service {
-    id: string;
-    slug: string;
-    title: string;
-    description?: string;
-    content?: string;
-    icon?: string;
-    image_url?: string;
-    category_id?: string;
-    features?: string[];
-    is_active: boolean;
-    created_at: string;
-    updated_at: string;
-    service_categories?: ServiceCategory;
-}
-
-export interface ServiceInquiry {
-    id: string;
-    service_id?: string;
-    name: string;
-    email: string;
-    phone?: string;
-    company?: string;
-    message?: string;
-    status: 'new' | 'processing' | 'completed' | 'cancelled';
-    created_at: string;
-    updated_at: string;
-    services?: { title: string };
-}
+import { Service, Result, success, failure, ErrorCodes, ServiceCategory, ServiceInquiry } from '@/types';
 
 export type CreateServiceDTO = Omit<Service, 'id' | 'created_at' | 'updated_at' | 'service_categories'>;
 export type UpdateServiceDTO = Partial<CreateServiceDTO>;
@@ -54,8 +13,8 @@ export const serviceService = {
         try {
             const { data, error } = await supabase
                 .from('services')
-                .select('*, service_categories(name)')
-                .order('created_at', { ascending: false });
+                .select('*, service_categories(id, name)')
+                .order('order_index', { ascending: true });
 
             if (error) return failure(error.message, ErrorCodes.DB_ERROR);
             return success(data || []);
@@ -68,7 +27,7 @@ export const serviceService = {
         try {
             const { data, error } = await supabase
                 .from('services')
-                .select('*, service_categories(name)')
+                .select('*, service_categories(id, name)')
                 .eq('id', id)
                 .single();
 
@@ -189,7 +148,7 @@ export const serviceService = {
         try {
             const { data, error } = await supabase
                 .from('service_inquiries')
-                .select('*, services(title)')
+                .select('*, full_name:name, company_name:company, service:services(title)')
                 .order('created_at', { ascending: false });
 
             if (error) return failure(error.message, ErrorCodes.DB_ERROR);
@@ -229,4 +188,3 @@ export const serviceService = {
         }
     }
 };
-

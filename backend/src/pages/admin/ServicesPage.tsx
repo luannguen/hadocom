@@ -28,7 +28,8 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
-import { serviceService, Service } from "@/services/serviceService";
+import { serviceService } from "@/services/serviceService";
+import { Service } from "@/types";
 import ServiceForm from "@/components/admin/services/ServiceForm";
 
 export default function ServicesPage() {
@@ -168,7 +169,7 @@ export default function ServicesPage() {
                       <Badge variant="secondary">Ẩn</Badge>
                     )}
                   </TableCell>
-                  <TableCell>{new Date(service.created_at).toLocaleDateString("vi-VN")}</TableCell>
+                  <TableCell>{service.created_at ? new Date(service.created_at).toLocaleDateString("vi-VN") : '-'}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

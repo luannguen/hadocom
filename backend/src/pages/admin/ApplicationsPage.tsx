@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { recruitmentService, JobApplication } from "@/services/recruitmentService";
+import { recruitmentService } from "@/services/recruitmentService";
+import { JobApplication } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
     Table,
@@ -40,8 +41,16 @@ export default function ApplicationsPage() {
     const fetchApplications = async () => {
         try {
             setLoading(true);
-            const data = await recruitmentService.getApplications();
-            setApplications(data);
+            const result = await recruitmentService.getApplications();
+            if (result.success) {
+                setApplications(result.data || []);
+            } else {
+                toast({
+                    title: "Error",
+                    description: result.error || "Failed to load applications",
+                    variant: "destructive",
+                });
+            }
         } catch (error) {
             console.error(error);
             toast({
@@ -61,9 +70,17 @@ export default function ApplicationsPage() {
 
     const handleUpdateStatus = async (id: string, status: string) => {
         try {
-            await recruitmentService.updateApplicationStatus(id, status);
-            toast({ title: "Success", description: "Status updated successfully" });
-            fetchApplications();
+            const result = await recruitmentService.updateApplicationStatus(id, status);
+            if (result.success) {
+                toast({ title: "Success", description: "Status updated successfully" });
+                fetchApplications();
+            } else {
+                toast({
+                    title: "Error",
+                    description: result.error || "Failed to update status",
+                    variant: "destructive",
+                });
+            }
         } catch (error) {
             console.error(error);
             toast({
@@ -77,9 +94,17 @@ export default function ApplicationsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this application?")) return;
         try {
-            await recruitmentService.deleteApplication(id);
-            toast({ title: "Success", description: "Application deleted successfully" });
-            fetchApplications();
+            const result = await recruitmentService.deleteApplication(id);
+            if (result.success) {
+                toast({ title: "Success", description: "Application deleted successfully" });
+                fetchApplications();
+            } else {
+                toast({
+                    title: "Error",
+                    description: result.error || "Failed to delete application",
+                    variant: "destructive",
+                });
+            }
         } catch (error) {
             console.error(error);
             toast({
@@ -95,7 +120,8 @@ export default function ApplicationsPage() {
             case 'pending': return 'bg-yellow-100 text-yellow-700';
             case 'reviewed': return 'bg-blue-100 text-blue-700';
             case 'interviewing': return 'bg-purple-100 text-purple-700';
-            case 'hired': return 'bg-green-100 text-green-700';
+            case 'offered': return 'bg-green-100 text-green-700';
+            case 'accepted': return 'bg-emerald-100 text-emerald-700';
             case 'rejected': return 'bg-red-100 text-red-700';
             default: return 'bg-slate-100 text-slate-700';
         }
@@ -162,7 +188,7 @@ export default function ApplicationsPage() {
                                     <TableCell className="text-sm">
                                         <div className="flex items-center">
                                             <Calendar className="mr-1 h-3 w-3" />
-                                            {new Date(app.created_at).toLocaleDateString()}
+                                            {app.created_at ? new Date(app.created_at).toLocaleDateString() : 'N/A'}
                                         </div>
                                     </TableCell>
                                     <TableCell>
@@ -177,7 +203,8 @@ export default function ApplicationsPage() {
                                                 <SelectItem value="pending">Chờ duyệt</SelectItem>
                                                 <SelectItem value="reviewed">Đã xem</SelectItem>
                                                 <SelectItem value="interviewing">Phỏng vấn</SelectItem>
-                                                <SelectItem value="hired">Đã tuyển</SelectItem>
+                                                <SelectItem value="offered">Đề nghị</SelectItem>
+                                                <SelectItem value="accepted">Chấp nhận</SelectItem>
                                                 <SelectItem value="rejected">Từ chối</SelectItem>
                                             </SelectContent>
                                         </Select>
@@ -244,7 +271,7 @@ export default function ApplicationsPage() {
                                 <div className="space-y-4">
                                     <div>
                                         <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Ngày nộp bộ hồ sơ</h4>
-                                        <p className="font-medium">{new Date(currentApp.created_at).toLocaleString()}</p>
+                                        <p className="font-medium">{currentApp.created_at ? new Date(currentApp.created_at).toLocaleString() : 'N/A'}</p>
                                     </div>
                                     <div>
                                         <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Hồ sơ đính kèm (CV)</h4>
@@ -277,7 +304,8 @@ export default function ApplicationsPage() {
                                         <SelectItem value="pending">Chờ duyệt</SelectItem>
                                         <SelectItem value="reviewed">Đã xem</SelectItem>
                                         <SelectItem value="interviewing">Phỏng vấn</SelectItem>
-                                        <SelectItem value="hired">Đã tuyển</SelectItem>
+                                        <SelectItem value="offered">Đề nghị</SelectItem>
+                                        <SelectItem value="accepted">Chấp nhận</SelectItem>
                                         <SelectItem value="rejected">Từ chối</SelectItem>
                                     </SelectContent>
                                 </Select>

@@ -9,7 +9,7 @@ import {
     Loader2
 } from 'lucide-react';
 import { navigationService } from '@/services/navigationService';
-import { NavigationItem, Result } from '@/components/data/types';
+import { NavigationItem, Result } from '@/types';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -287,7 +287,7 @@ export default function MenuManager() {
                                         </div>
                                         <div>
                                             <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                                                {item.label}
+                                                {t(item.label)}
                                                 {!item.is_active && <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">{t('inactive')}</span>}
                                             </h3>
                                             <p className="text-sm text-gray-500">{item.path}</p>

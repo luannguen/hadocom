@@ -27,7 +27,8 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
-import { serviceService, ServiceInquiry } from "@/services/serviceService";
+import { serviceService } from "@/services/serviceService";
+import { ServiceInquiry } from "@/types";
 
 export default function ServiceInquiriesPage() {
   const [inquiries, setInquiries] = useState<ServiceInquiry[]>([]);
@@ -73,7 +74,7 @@ export default function ServiceInquiriesPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'new': return <Badge className="bg-blue-500">Mới</Badge>;
+      case 'pending': return <Badge className="bg-blue-500">Mới</Badge>;
       case 'processing': return <Badge className="bg-yellow-500">Đang xử lý</Badge>;
       case 'completed': return <Badge className="bg-green-600">Hoàn tất</Badge>;
       case 'cancelled': return <Badge variant="destructive">Đã hủy</Badge>;
@@ -82,9 +83,9 @@ export default function ServiceInquiriesPage() {
   };
 
   const filteredInquiries = inquiries.filter((inquiry) =>
-    inquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    inquiry.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     inquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    inquiry.services?.title.toLowerCase().includes(searchTerm.toLowerCase())
+    inquiry.service?.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -129,11 +130,11 @@ export default function ServiceInquiriesPage() {
                 <TableRow key={inquiry.id}>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-medium">{inquiry.name}</span>
+                      <span className="font-medium">{inquiry.full_name}</span>
                       <span className="text-xs text-muted-foreground">{inquiry.email}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{inquiry.services?.title || "Dịch vụ khác"}</TableCell>
+                  <TableCell>{inquiry.service?.title || "Dịch vụ khác"}</TableCell>
                   <TableCell>{new Date(inquiry.created_at).toLocaleDateString("vi-VN")}</TableCell>
                   <TableCell>{getStatusBadge(inquiry.status)}</TableCell>
                   <TableCell className="text-right">
@@ -176,7 +177,7 @@ export default function ServiceInquiriesPage() {
           <DialogHeader>
             <DialogTitle>Chi tiết yêu cầu dịch vụ</DialogTitle>
             <DialogDescription>
-              Thông tin chi tiết từ khách hàng {selectedInquiry?.name}
+              Thông tin chi tiết từ khách hàng {selectedInquiry?.full_name}
             </DialogDescription>
           </DialogHeader>
           {selectedInquiry && (
@@ -184,7 +185,7 @@ export default function ServiceInquiriesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                     <p className="text-sm font-medium flex items-center gap-2"><User className="h-4 w-4" /> Họ tên</p>
-                    <p className="text-sm text-muted-foreground">{selectedInquiry.name}</p>
+                    <p className="text-sm text-muted-foreground">{selectedInquiry.full_name}</p>
                 </div>
                 <div className="space-y-1">
                     <p className="text-sm font-medium flex items-center gap-2"><Mail className="h-4 w-4" /> Email</p>
@@ -196,12 +197,12 @@ export default function ServiceInquiriesPage() {
                 </div>
                 <div className="space-y-1">
                     <p className="text-sm font-medium flex items-center gap-2"><Building2 className="h-4 w-4" /> Công ty</p>
-                    <p className="text-sm text-muted-foreground">{selectedInquiry.company || "Cá nhân"}</p>
+                    <p className="text-sm text-muted-foreground">{selectedInquiry.company_name || "Cá nhân"}</p>
                 </div>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium">Dịch vụ quan tâm</p>
-                <p className="text-sm text-muted-foreground">{selectedInquiry.services?.title || "Thông tin khác"}</p>
+                <p className="text-sm text-muted-foreground">{selectedInquiry.service?.title || "Thông tin khác"}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium">Lời nhắn</p>

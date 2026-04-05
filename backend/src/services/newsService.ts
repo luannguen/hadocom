@@ -1,117 +1,85 @@
 
 import { supabase } from "@/lib/supabase";
 import { v4 as uuidv4 } from 'uuid';
-// import { News } from "@/components/data/types"; // Type check later if needed
-
-
-// Define DB type if it differs substantially from frontend type, 
-// but for now relying on shared types or adapting locally.
-// Actually, let's check types.ts first, but I will assume standard structure based on SQL.
+import { News, Result, success, failure, ErrorCodes } from "@/types";
 
 export const newsService = {
-    async getNews(categorySlug?: string): Promise<any[]> { // Using any[] temporarily until types are aligned
-        let query = supabase
-            .from('news')
-            .select(`
-                *,
-                categories (
-                    name,
-                    slug
-                )
-            `)
-            .order('publish_date', { ascending: false });
+    async getNews(categoryId?: string): Promise<Result<News[]>> {
+        try {
+            let query = supabase
+                .from('news')
+                .select('*')
+                .order('publish_date', { ascending: false });
 
-        if (categorySlug) {
-            // This requires joining or filtering by category_id found from slug
-            // Simplest is to fetch all or filter by category_id if passed. 
-            // Changing arg to category_id might be better, but let's stick to simple select for now.
-            // If categorySlug is needed, we need a refined query. 
-            // For Admin Dashboard, usually we just need all list.
+            if (categoryId) {
+                query = query.eq('category_id', categoryId);
+            }
+
+            const { data, error } = await query;
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(data || []);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
         }
-
-        const { data, error } = await query;
-
-        if (error) {
-            console.error('Error fetching news:', error);
-            throw error;
-        }
-
-        return data || [];
     },
 
-    async getNewsById(id: string): Promise<any> {
-        const { data, error } = await supabase
-            .from('news')
-            .select(`
-                *,
-                categories (
-                    id,
-                    name,
-                    slug
-                )
-            `)
-            .eq('id', id)
-            .single();
+    async getNewsById(id: string): Promise<Result<News>> {
+        try {
+            const { data, error } = await supabase
+                .from('news')
+                .select('*')
+                .eq('id', id)
+                .single();
 
-        if (error) {
-            console.error('Error fetching news item:', error);
-            throw error;
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(data);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
         }
-
-        return data;
     },
 
-    async createNews(news: any): Promise<any> {
-        const newNews = {
-            ...news,
-            id: uuidv4(),
-        };
+    async createNews(news: Omit<News, 'id' | 'created_at'>): Promise<Result<News>> {
+        try {
+            const { data, error } = await supabase
+                .from('news')
+                .insert([{ ...news, id: uuidv4() }])
+                .select()
+                .single();
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { category, categories, ...cleanNews } = newNews;
-
-        const { data, error } = await supabase
-            .from('news')
-            .insert([cleanNews])
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Error creating news:', error);
-            throw error;
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(data);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
         }
-
-        return data;
     },
 
-    async updateNews(id: string, updates: any): Promise<any> {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { category, categories, ...cleanUpdates } = updates;
+    async updateNews(id: string, updates: Partial<News>): Promise<Result<News>> {
+        try {
+            const { data, error } = await supabase
+                .from('news')
+                .update(updates)
+                .eq('id', id)
+                .select()
+                .single();
 
-        const { data, error } = await supabase
-            .from('news')
-            .update(cleanUpdates)
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Error updating news:', error);
-            throw error;
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(data);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
         }
-
-        return data;
     },
 
-    async deleteNews(id: string): Promise<void> {
-        const { error } = await supabase
-            .from('news')
-            .delete()
-            .eq('id', id);
+    async deleteNews(id: string): Promise<Result<void>> {
+        try {
+            const { error } = await supabase
+                .from('news')
+                .delete()
+                .eq('id', id);
 
-        if (error) {
-            console.error('Error deleting news:', error);
-            throw error;
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(undefined);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
         }
     }
 };

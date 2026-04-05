@@ -1,124 +1,109 @@
 import { supabase } from '@/lib/supabase';
-
-export interface Job {
-    id: string;
-    title: string;
-    slug: string;
-    description: string | null;
-    requirements: string | null;
-    benefits: string | null;
-    location: string | null;
-    type: string | null;
-    salary: string | null;
-    status: string | null;
-    deadline: string | null;
-    created_at: string;
-    updated_at: string;
-}
-
-export interface JobFormData {
-    title: string;
-    slug: string;
-    description?: string;
-    requirements?: string;
-    benefits?: string;
-    location?: string;
-    type?: string;
-    salary?: string;
-    status?: string;
-    deadline?: string;
-}
-
-export interface JobApplication {
-    id: string;
-    job_id: string;
-    full_name: string;
-    email: string;
-    phone: string;
-    cv_url: string;
-    message: string | null;
-    status: string | null;
-    created_at: string;
-    job?: {
-        title: string;
-    };
-}
+import { Result, success, failure, Job, JobApplication } from '@/types';
 
 export const recruitmentService = {
     // Job Management
-    async getJobs() {
-        const { data, error } = await supabase
-            .from('jobs')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data as Job[];
+    async getJobs(): Promise<Result<Job[]>> {
+        try {
+            const { data, error } = await supabase
+                .from('jobs')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) return failure(error.message);
+            return success(data as Job[]);
+        } catch (error: any) {
+            return failure(error.message || 'Failed to fetch jobs');
+        }
     },
 
-    async createJob(jobData: JobFormData) {
-        const { data, error } = await supabase
-            .from('jobs')
-            .insert([jobData])
-            .select()
-            .single();
-        
-        if (error) throw error;
-        return data as Job;
+    async createJob(jobData: Partial<Job>): Promise<Result<Job>> {
+        try {
+            const { data, error } = await supabase
+                .from('jobs')
+                .insert([jobData])
+                .select()
+                .single();
+            
+            if (error) return failure(error.message);
+            return success(data as Job);
+        } catch (error: any) {
+            return failure(error.message || 'Failed to create job');
+        }
     },
 
-    async updateJob(id: string, jobData: Partial<JobFormData>) {
-        const { data, error } = await supabase
-            .from('jobs')
-            .update({ ...jobData, updated_at: new Date().toISOString() })
-            .eq('id', id)
-            .select()
-            .single();
-        
-        if (error) throw error;
-        return data as Job;
+    async updateJob(id: string, jobData: Partial<Job>): Promise<Result<Job>> {
+        try {
+            const { data, error } = await supabase
+                .from('jobs')
+                .update({ ...jobData, updated_at: new Date().toISOString() })
+                .eq('id', id)
+                .select()
+                .single();
+            
+            if (error) return failure(error.message);
+            return success(data as Job);
+        } catch (error: any) {
+            return failure(error.message || 'Failed to update job');
+        }
     },
 
-    async deleteJob(id: string) {
-        const { error } = await supabase
-            .from('jobs')
-            .delete()
-            .eq('id', id);
-        
-        if (error) throw error;
-        return true;
+    async deleteJob(id: string): Promise<Result<void>> {
+        try {
+            const { error } = await supabase
+                .from('jobs')
+                .delete()
+                .eq('id', id);
+            
+            if (error) return failure(error.message);
+            return success(undefined);
+        } catch (error: any) {
+            return failure(error.message || 'Failed to delete job');
+        }
     },
 
     // Application Management
-    async getApplications() {
-        const { data, error } = await supabase
-            .from('job_applications')
-            .select('*, job:jobs(title)')
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data as JobApplication[];
+    async getApplications(): Promise<Result<JobApplication[]>> {
+        try {
+            const { data, error } = await supabase
+                .from('job_applications')
+                .select('*, job:jobs(title)')
+                .order('created_at', { ascending: false });
+            
+            if (error) return failure(error.message);
+            return success(data as JobApplication[]);
+        } catch (error: any) {
+            return failure(error.message || 'Failed to fetch applications');
+        }
     },
 
-    async updateApplicationStatus(id: string, status: string) {
-        const { data, error } = await supabase
-            .from('job_applications')
-            .update({ status })
-            .eq('id', id)
-            .select()
-            .single();
-        
-        if (error) throw error;
-        return data as JobApplication;
+    async updateApplicationStatus(id: string, status: string): Promise<Result<JobApplication>> {
+        try {
+            const { data, error } = await supabase
+                .from('job_applications')
+                .update({ status })
+                .eq('id', id)
+                .select()
+                .single();
+            
+            if (error) return failure(error.message);
+            return success(data as JobApplication);
+        } catch (error: any) {
+            return failure(error.message || 'Failed to update application status');
+        }
     },
 
-    async deleteApplication(id: string) {
-        const { error } = await supabase
-            .from('job_applications')
-            .delete()
-            .eq('id', id);
-        
-        if (error) throw error;
-        return true;
+    async deleteApplication(id: string): Promise<Result<void>> {
+        try {
+            const { error } = await supabase
+                .from('job_applications')
+                .delete()
+                .eq('id', id);
+            
+            if (error) return failure(error.message);
+            return success(undefined);
+        } catch (error: any) {
+            return failure(error.message || 'Failed to delete application');
+        }
     }
 };

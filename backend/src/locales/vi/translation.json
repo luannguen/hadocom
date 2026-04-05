@@ -128,6 +128,18 @@
     "label_path_required": "Nhãn và Đường dẫn là bắt buộc",
     "confirm_delete_item": "Bạn có chắc chắn muốn xóa mục menu này không?",
     "save_changes": "Lưu thay đổi",
+    "nav": {
+        "home": "Trang chủ",
+        "about": "Giới thiệu",
+        "services": "Dịch vụ",
+        "projects": "Dự án",
+        "news": "Tin tức",
+        "contact": "Liên hệ",
+        "privacy": "Chính sách bảo mật",
+        "terms": "Điều khoản sử dụng",
+        "cookie": "Chính sách Cookie",
+        "sitemap": "Sơ đồ trang web"
+    },
     "brand_identity": "Nhận diện Thương hiệu",
     "website_logo": "Logo Website",
     "logo_recommendation": "Kích thước khuyên dùng: 200x60px. Tối đa: 2MB. Định dạng: PNG, JPG, WEBP.",

@@ -1,89 +1,80 @@
 
 import { supabase } from "@/lib/supabase";
-import { Project } from "@/components/data/types";
 import { v4 as uuidv4 } from 'uuid';
+import { Project, Result, success, failure, ErrorCodes } from "@/types";
 
 export const projectService = {
-    async getProjects(): Promise<Project[]> {
-        const { data, error } = await supabase
-            .from('projects')
-            .select('*, category:categories(*)')
-            .order('completion_date', { ascending: false });
+    async getProjects(): Promise<Result<Project[]>> {
+        try {
+            const { data, error } = await supabase
+                .from('projects')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching projects:', error);
-            throw error;
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(data || []);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
         }
-
-        return data || [];
     },
 
-    async getProjectById(id: string): Promise<Project | null> {
-        const { data, error } = await supabase
-            .from('projects')
-            .select('*, category:categories(*)')
-            .eq('id', id)
-            .single();
+    async getProjectById(id: string): Promise<Result<Project>> {
+        try {
+            const { data, error } = await supabase
+                .from('projects')
+                .select('*')
+                .eq('id', id)
+                .single();
 
-        if (error) {
-            console.error('Error fetching project:', error);
-            throw error;
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(data);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
         }
-
-        return data;
     },
 
-    async createProject(project: Omit<Project, 'id' | 'created_at'>): Promise<Project> {
-        const newProject = {
-            ...project,
-            id: uuidv4(),
-        };
+    async createProject(project: Omit<Project, 'id' | 'created_at'>): Promise<Result<Project>> {
+        try {
+            const { data, error } = await supabase
+                .from('projects')
+                .insert([{ ...project, id: uuidv4() }])
+                .select()
+                .single();
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { category, ...cleanProject } = newProject;
-
-        const { data, error } = await supabase
-            .from('projects')
-            .insert([cleanProject])
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Error creating project:', error);
-            throw error;
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(data);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
         }
-
-        return data;
     },
 
-    async updateProject(id: string, updates: Partial<Project>): Promise<Project> {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { category, ...cleanUpdates } = updates;
+    async updateProject(id: string, updates: Partial<Project>): Promise<Result<Project>> {
+        try {
+            const { data, error } = await supabase
+                .from('projects')
+                .update(updates)
+                .eq('id', id)
+                .select()
+                .single();
 
-        const { data, error } = await supabase
-            .from('projects')
-            .update(cleanUpdates)
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Error updating project:', error);
-            throw error;
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(data);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
         }
-
-        return data;
     },
 
-    async deleteProject(id: string): Promise<void> {
-        const { error } = await supabase
-            .from('projects')
-            .delete()
-            .eq('id', id);
+    async deleteProject(id: string): Promise<Result<void>> {
+        try {
+            const { error } = await supabase
+                .from('projects')
+                .delete()
+                .eq('id', id);
 
-        if (error) {
-            console.error('Error deleting project:', error);
-            throw error;
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(undefined);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
         }
     }
 };

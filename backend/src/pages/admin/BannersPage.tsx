@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from "react";
-import { bannerService, Banner, BannerFormData } from "@/services/bannerService";
+import { bannerService } from "@/services/bannerService";
 import { mediaService } from "@/services/mediaService";
+import { Banner, BannerFormData } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,7 +32,7 @@ export default function BannersPage() {
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [currentBanner, setCurrentBanner] = useState<Banner | null>(null);
-    const [formData, setFormData] = useState<BannerFormData>({
+    const [formData, setFormData] = useState<Partial<BannerFormData>>({
         title: "",
         image_url: "",
         link: "",
@@ -51,9 +51,17 @@ export default function BannersPage() {
     const fetchBanners = async () => {
         try {
             setLoading(true);
-            const data = await bannerService.getBanners();
-            setBanners(data);
-        } catch (error) {
+            const result = await bannerService.getBanners();
+            if (result.success) {
+                setBanners(result.data || []);
+            } else {
+                toast({
+                    title: "Error",
+                    description: result.error || "Failed to load banners",
+                    variant: "destructive",
+                });
+            }
+        } catch (error: any) {
             console.error(error);
             toast({
                 title: "Error",
@@ -69,13 +77,15 @@ export default function BannersPage() {
         if (banner) {
             setCurrentBanner(banner);
             setFormData({
-                title: banner.title,
+                title: banner.title || "",
                 image_url: banner.image_url,
-                link: banner.link,
-                description: banner.description,
+                link: banner.link || "",
+                description: banner.description || "",
                 position: banner.position,
                 order_index: banner.order_index,
                 is_active: banner.is_active,
+                badge: banner.badge || "",
+                button_text: banner.button_text || ""
             });
         } else {
             setCurrentBanner(null);
@@ -85,8 +95,10 @@ export default function BannersPage() {
                 link: "",
                 description: "",
                 position: "home_main",
-                order_index: 0,
+                order_index: banners.length > 0 ? Math.max(...banners.map(b => b.order_index)) + 1 : 0,
                 is_active: true,
+                badge: "",
+                button_text: ""
             });
         }
         setSelectedFile(null);
@@ -114,19 +126,32 @@ export default function BannersPage() {
                 return;
             }
 
-            const bannerData = { ...formData, image_url: imageUrl };
+            const bannerData = { ...formData, image_url: imageUrl } as BannerFormData;
 
+            let result;
             if (currentBanner) {
-                await bannerService.updateBanner(currentBanner.id, bannerData);
-                toast({ title: "Success", description: "Banner updated successfully" });
+                result = await bannerService.updateBanner(currentBanner.id, bannerData);
+                if (result.success) {
+                    toast({ title: "Success", description: "Banner updated successfully" });
+                }
             } else {
-                await bannerService.createBanner(bannerData);
-                toast({ title: "Success", description: "Banner created successfully" });
+                result = await bannerService.createBanner(bannerData);
+                if (result.success) {
+                    toast({ title: "Success", description: "Banner created successfully" });
+                }
             }
 
-            setIsDialogOpen(false);
-            fetchBanners();
-        } catch (error) {
+            if (result?.success) {
+                setIsDialogOpen(false);
+                fetchBanners();
+            } else {
+                toast({
+                    title: "Error",
+                    description: result?.error || "Failed to save banner",
+                    variant: "destructive",
+                });
+            }
+        } catch (error: any) {
             console.error(error);
             toast({
                 title: "Error",
@@ -139,10 +164,14 @@ export default function BannersPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this banner?")) return;
         try {
-            await bannerService.deleteBanner(id);
-            toast({ title: "Success", description: "Banner deleted successfully" });
-            fetchBanners();
-        } catch (error) {
+            const result = await bannerService.deleteBanner(id);
+            if (result.success) {
+                toast({ title: "Success", description: "Banner deleted successfully" });
+                fetchBanners();
+            } else {
+                toast({ title: "Error", description: result.error || "Failed to delete banner", variant: "destructive" });
+            }
+        } catch (error: any) {
             console.error(error);
             toast({
                 title: "Error",
@@ -154,12 +183,16 @@ export default function BannersPage() {
 
     const handleToggleActive = async (banner: Banner) => {
         try {
-            await bannerService.updateBanner(banner.id, { is_active: !banner.is_active });
-            fetchBanners();
-        } catch (error) {
+            const result = await bannerService.updateBanner(banner.id, { is_active: !banner.is_active });
+            if (result.success) {
+                fetchBanners();
+            } else {
+                toast({ title: "Error", description: result.error || "Failed to update status", variant: "destructive" });
+            }
+        } catch (error: any) {
             toast({ title: "Error", description: "Failed to update status", variant: "destructive" });
         }
-    }
+    };
 
     return (
         <div className="space-y-6">

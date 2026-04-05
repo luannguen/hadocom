@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { recruitmentService, Job, JobFormData } from "@/services/recruitmentService";
+import { recruitmentService } from "@/services/recruitmentService";
+import { Job } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,7 +37,7 @@ export default function RecruitmentPage() {
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [currentJob, setCurrentJob] = useState<Job | null>(null);
-    const [formData, setFormData] = useState<JobFormData>({
+    const [formData, setFormData] = useState<Partial<Job>>({
         title: "",
         slug: "",
         description: "",
@@ -45,7 +46,7 @@ export default function RecruitmentPage() {
         location: "TP. Hồ Chí Minh",
         type: "Full-time",
         salary: "Thỏa thuận",
-        status: "open",
+        status: "opening",
         deadline: "",
     });
     const { toast } = useToast();
@@ -57,8 +58,16 @@ export default function RecruitmentPage() {
     const fetchJobs = async () => {
         try {
             setLoading(true);
-            const data = await recruitmentService.getJobs();
-            setJobs(data);
+            const result = await recruitmentService.getJobs();
+            if (result.success) {
+                setJobs(result.data || []);
+            } else {
+                toast({
+                    title: "Error",
+                    description: result.error || "Failed to load jobs",
+                    variant: "destructive",
+                });
+            }
         } catch (error) {
             console.error(error);
             toast({
@@ -83,7 +92,7 @@ export default function RecruitmentPage() {
                 location: job.location || "TP. Hồ Chí Minh",
                 type: job.type || "Full-time",
                 salary: job.salary || "Thỏa thuận",
-                status: job.status || "open",
+                status: job.status || "opening",
                 deadline: job.deadline || "",
             });
         } else {
@@ -97,7 +106,7 @@ export default function RecruitmentPage() {
                 location: "TP. Hồ Chí Minh",
                 type: "Full-time",
                 salary: "Thỏa thuận",
-                status: "open",
+                status: "opening",
                 deadline: "",
             });
         }
@@ -107,15 +116,24 @@ export default function RecruitmentPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            let result;
             if (currentJob) {
-                await recruitmentService.updateJob(currentJob.id, formData);
-                toast({ title: "Success", description: "Job updated successfully" });
+                result = await recruitmentService.updateJob(currentJob.id, formData);
             } else {
-                await recruitmentService.createJob(formData);
-                toast({ title: "Success", description: "Job created successfully" });
+                result = await recruitmentService.createJob(formData);
             }
-            setIsDialogOpen(false);
-            fetchJobs();
+
+            if (result.success) {
+                toast({ title: "Success", description: currentJob ? "Job updated successfully" : "Job created successfully" });
+                setIsDialogOpen(false);
+                fetchJobs();
+            } else {
+                toast({
+                    title: "Error",
+                    description: result.error || "Failed to save job",
+                    variant: "destructive",
+                });
+            }
         } catch (error) {
             console.error(error);
             toast({
@@ -129,9 +147,17 @@ export default function RecruitmentPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this job?")) return;
         try {
-            await recruitmentService.deleteJob(id);
-            toast({ title: "Success", description: "Job deleted successfully" });
-            fetchJobs();
+            const result = await recruitmentService.deleteJob(id);
+            if (result.success) {
+                toast({ title: "Success", description: "Job deleted successfully" });
+                fetchJobs();
+            } else {
+                toast({
+                    title: "Error",
+                    description: result.error || "Failed to delete job",
+                    variant: "destructive",
+                });
+            }
         } catch (error) {
             console.error(error);
             toast({
@@ -225,9 +251,9 @@ export default function RecruitmentPage() {
                                     </TableCell>
                                     <TableCell>
                                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                            job.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                            job.status === 'opening' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                                         }`}>
-                                            {job.status === 'open' ? 'Đang tuyển' : 'Đã đóng'}
+                                            {job.status === 'opening' ? 'Đang tuyển' : 'Đã đóng'}
                                         </span>
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -328,14 +354,14 @@ export default function RecruitmentPage() {
                              <div className="space-y-2">
                                 <Label htmlFor="status">Trạng thái</Label>
                                 <Select
-                                    value={formData.status || "open"}
-                                    onValueChange={(value) => setFormData({ ...formData, status: value })}
+                                    value={formData.status || "opening"}
+                                    onValueChange={(value) => setFormData({ ...formData, status: value as any })}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Trạng thái" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="open">Đang tuyển</SelectItem>
+                                        <SelectItem value="opening">Đang tuyển</SelectItem>
                                         <SelectItem value="closed">Đã đóng</SelectItem>
                                         <SelectItem value="draft">Bản nháp</SelectItem>
                                     </SelectContent>

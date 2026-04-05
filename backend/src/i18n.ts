@@ -4,6 +4,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import en from './locales/en/translation.json';
 import vi from './locales/vi/translation.json';
+import ja from './locales/ja/translation.json';
 import de from './locales/de/translation.json';
 import fr from './locales/fr/translation.json';
 import ru from './locales/ru/translation.json';
@@ -23,6 +24,7 @@ i18n
         resources: {
             en: { translation: en },
             vi: { translation: vi },
+            ja: { translation: ja },
             de: { translation: de },
             fr: { translation: fr },
             ru: { translation: ru },

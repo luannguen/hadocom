@@ -128,6 +128,18 @@
     "label_path_required": "Label and Path are required",
     "confirm_delete_item": "Are you sure you want to delete this menu item?",
     "save_changes": "Save Changes",
+    "nav": {
+        "home": "Home",
+        "about": "About Us",
+        "services": "Services",
+        "projects": "Projects",
+        "news": "News",
+        "contact": "Contact",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Use",
+        "cookie": "Cookie Policy",
+        "sitemap": "Sitemap"
+    },
     "brand_identity": "Brand Identity",
     "website_logo": "Website Logo",
     "logo_recommendation": "Recommended size: 200x60px. Max: 2MB. Formats: PNG, JPG, WEBP.",

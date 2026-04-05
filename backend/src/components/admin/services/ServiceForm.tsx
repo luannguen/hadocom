@@ -24,7 +24,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { serviceService, Service, CreateServiceDTO, ServiceCategory } from "@/services/serviceService";
+import { serviceService, CreateServiceDTO } from "@/services/serviceService";
+import { Service, ServiceCategory } from "@/types";
 import { slugify } from "@/lib/utils";
 import { useTranslation } from 'react-i18next';
 
@@ -114,8 +115,16 @@ export default function ServiceForm({ initialData, onSuccess, onCancel }: Servic
     const onSubmit = async (data: ServiceFormValues) => {
         setIsLoading(true);
         try {
+            // Ensure features is included to satisfy CreateServiceDTO if needed, 
+            // though we might want to make it optional in the DTO if it's not in the form.
+            const serviceData = {
+                ...data,
+                features: (initialData?.features) || [], // Keep existing features if any
+                order_index: initialData?.order_index ?? 0
+            } as CreateServiceDTO;
+
             if (initialData) {
-                const result = await serviceService.updateService(initialData.id, data);
+                const result = await serviceService.updateService(initialData.id, serviceData);
                 if (result.success) {
                     toast({ title: t('success'), description: t('service_update_success') });
                     onSuccess();
@@ -123,7 +132,7 @@ export default function ServiceForm({ initialData, onSuccess, onCancel }: Servic
                     toast({ variant: "destructive", title: t('error'), description: result.error || t('error_occurred') });
                 }
             } else {
-                const result = await serviceService.createService(data as CreateServiceDTO);
+                const result = await serviceService.createService(serviceData);
                 if (result.success) {
                     toast({ title: t('success'), description: t('service_create_success') });
                     onSuccess();

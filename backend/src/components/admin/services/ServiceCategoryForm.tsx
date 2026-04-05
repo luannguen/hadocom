@@ -14,7 +14,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { serviceService, ServiceCategory } from "@/services/serviceService";
+import { serviceService } from "@/services/serviceService";
+import { ServiceCategory } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
 import { slugify } from "@/lib/utils";
 

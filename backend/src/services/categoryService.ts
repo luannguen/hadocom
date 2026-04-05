@@ -1,74 +1,74 @@
 
 import { supabase } from "@/lib/supabase";
-import { Category } from "@/components/data/types";
-import { v4 as uuidv4 } from 'uuid';
+import { Category, ContentType, Result, success, failure } from "@/types";
 
 export const categoryService = {
-    async getCategories(type?: 'news' | 'product' | 'project' | 'event'): Promise<Category[]> {
-        let query = supabase
-            .from('categories')
-            .select('*')
-            .order('name');
+    async getCategories(type?: ContentType): Promise<Result<Category[]>> {
+        try {
+            let query = supabase
+                .from('categories')
+                .select('*')
+                .order('name');
 
-        if (type) {
-            query = query.eq('type', type);
-        }
+            if (type) {
+                query = query.eq('type', type);
+            }
 
-        const { data, error } = await query;
+            const { data, error } = await query;
 
-        if (error) {
+            if (error) throw error;
+            return success(data || []);
+        } catch (error: any) {
             console.error('Error fetching categories:', error);
-            throw error;
+            return failure(error.message);
         }
-
-        return data || [];
     },
 
-    async createCategory(category: Omit<Category, 'id' | 'created_at'>): Promise<Category> {
-        const newCategory = {
-            ...category,
-            id: uuidv4(),
-        };
+    async createCategory(category: Omit<Category, 'id' | 'created_at' | 'updated_at'>): Promise<Result<Category>> {
+        try {
+            const { data, error } = await supabase
+                .from('categories')
+                .insert([category])
+                .select()
+                .single();
 
-        const { data, error } = await supabase
-            .from('categories')
-            .insert([newCategory])
-            .select()
-            .single();
-
-        if (error) {
+            if (error) throw error;
+            return success(data);
+        } catch (error: any) {
             console.error('Error creating category:', error);
-            throw error;
+            return failure(error.message);
         }
-
-        return data;
     },
 
-    async updateCategory(id: string, updates: Partial<Category>): Promise<Category> {
-        const { data, error } = await supabase
-            .from('categories')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single();
+    async updateCategory(id: string, updates: Partial<Category>): Promise<Result<Category>> {
+        try {
+            const { data, error } = await supabase
+                .from('categories')
+                .update(updates)
+                .eq('id', id)
+                .select()
+                .single();
 
-        if (error) {
+            if (error) throw error;
+            return success(data);
+        } catch (error: any) {
             console.error('Error updating category:', error);
-            throw error;
+            return failure(error.message);
         }
-
-        return data;
     },
 
-    async deleteCategory(id: string): Promise<void> {
-        const { error } = await supabase
-            .from('categories')
-            .delete()
-            .eq('id', id);
+    async deleteCategory(id: string): Promise<Result<void>> {
+        try {
+            const { error } = await supabase
+                .from('categories')
+                .delete()
+                .eq('id', id);
 
-        if (error) {
+            if (error) throw error;
+            return success(undefined);
+        } catch (error: any) {
             console.error('Error deleting category:', error);
-            throw error;
+            return failure(error.message);
         }
     }
 };

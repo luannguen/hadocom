@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { projectService } from '@/services/projectService';
 import { productService } from '@/services/productService'; // Reusing for getCategories
-import { Project, Category } from '@/components/data/types';
+import { Project, Category } from '@/types';
 import { Plus, Edit2, Trash2, Search, Loader2, Briefcase } from 'lucide-react';
 import ProjectForm from '@/components/admin/projects/ProjectForm';
 import { useTranslation } from 'react-i18next';
@@ -25,13 +25,17 @@ const ProjectsPage: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [projectsData, catResult] = await Promise.all([
+            const [projResult, catResult] = await Promise.all([
                 projectService.getProjects(),
                 productService.getCategories()
             ]);
 
-            setProjects(projectsData || []);
-            if (catResult.success) setCategories(catResult.data || []);
+            if (projResult.success) {
+                setProjects(projResult.data || []);
+            }
+            if (catResult.success) {
+                setCategories(catResult.data || []);
+            }
         } catch (error) {
             console.error('Failed to load data', error);
         } finally {
@@ -43,8 +47,12 @@ const ProjectsPage: React.FC = () => {
         if (!confirm(t('confirm_delete_project'))) return;
 
         try {
-            await projectService.deleteProject(id);
-            setProjects(prev => prev.filter(p => p.id !== id));
+            const result = await projectService.deleteProject(id);
+            if (result.success) {
+                setProjects(prev => prev.filter(p => p.id !== id));
+            } else {
+                alert(result.error || t('delete_project_fail'));
+            }
         } catch (error) {
             alert(t('delete_project_fail'));
         }
@@ -52,14 +60,20 @@ const ProjectsPage: React.FC = () => {
 
     const handleSave = async (projectData: Partial<Project>) => {
         try {
+            let result;
             if (editingProject?.id) {
-                await projectService.updateProject(editingProject.id, projectData);
+                result = await projectService.updateProject(editingProject.id, projectData);
             } else {
-                await projectService.createProject(projectData as any);
+                result = await projectService.createProject(projectData as any);
             }
-            setIsEditing(false);
-            setEditingProject(undefined);
-            loadData();
+
+            if (result.success) {
+                setIsEditing(false);
+                setEditingProject(undefined);
+                loadData();
+            } else {
+                alert(result.error || t('save_project_fail'));
+            }
         } catch (error) {
             alert(t('save_project_fail'));
         }
