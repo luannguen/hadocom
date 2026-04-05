@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "@/hooks/useData";
 
 const Footer = () => {
   const { t } = useTranslation();
+  const { data: settings } = useSettings();
+
+  const slogan = settings?.company_slogan || t("footer.slogan");
 
   return (
     <footer className="bg-navy border-t border-white/10 py-12 px-4">
@@ -10,7 +14,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           <div>
             <span className="text-xl font-bold text-white">HADO<span className="text-cyan">COM</span></span>
-            <p className="text-white/50 text-sm mt-2 max-w-xs">{t("footer.slogan")}</p>
+            <p className="text-white/50 text-sm mt-2 max-w-xs">{slogan}</p>
           </div>
           <div>
             <h4 className="text-sm font-semibold text-white mb-3">{t("footer.links")}</h4>

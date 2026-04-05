@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Menu, X, Phone, Download, ChevronDown, Globe } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "@/hooks/useData";
 
 const languages = [
   { code: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
@@ -38,6 +39,7 @@ const NavLinkItem = ({ label, href, onClick }: { label: string; href: string; on
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
+  const { data: settings } = useSettings();
   const [open, setOpen] = useState(false);
   const [exploreOpen, setExploreOpen] = useState(false);
   const [mobileExplore, setMobileExplore] = useState(false);
@@ -124,8 +126,8 @@ const Navbar = () => {
           <a href="/HADOCOM-Profile.pdf" download className="flex items-center gap-1.5 text-sm font-medium text-cyan hover:text-white transition-colors">
             <Download className="w-4 h-4" /> {t("nav.profile")}
           </a>
-          <a href="tel:0775395879" className="flex items-center gap-2 bg-secondary text-secondary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold hover:brightness-110 transition shadow-lg shadow-secondary/30">
-            <Phone className="w-4 h-4" /> 0775 395 879
+          <a href={`tel:${settings?.company_phone?.replace(/\s/g, '') || "0775395879"}`} className="flex items-center gap-2 bg-secondary text-secondary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold hover:brightness-110 transition shadow-lg shadow-secondary/30">
+            <Phone className="w-4 h-4" /> {settings?.company_phone || "0775 395 879"}
           </a>
         </div>
 
@@ -170,8 +172,8 @@ const Navbar = () => {
             <a href="/HADOCOM-Profile.pdf" download className="flex items-center gap-2 text-cyan font-medium text-sm">
               <Download className="w-4 h-4" /> {t("nav.downloadProfile")}
             </a>
-            <a href="tel:0775395879" className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-xl text-sm font-semibold w-fit">
-              <Phone className="w-4 h-4" /> 0775 395 879
+            <a href={`tel:${settings?.company_phone?.replace(/\s/g, '') || "0775395879"}`} className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-xl text-sm font-semibold w-fit">
+              <Phone className="w-4 h-4" /> {settings?.company_phone || "0775 395 879"}
             </a>
           </div>
         </div>

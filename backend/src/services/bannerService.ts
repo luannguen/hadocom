@@ -7,6 +7,9 @@ export interface Banner {
     image_url: string;
     link: string | null;
     description: string | null;
+    badge?: string | null;
+    button_text?: string | null;
+    features?: any | null; // JSONB in DB
     position: 'home_main' | 'popup' | 'sidebar' | string;
     order_index: number;
     is_active: boolean;

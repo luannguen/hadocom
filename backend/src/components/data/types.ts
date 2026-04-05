@@ -123,6 +123,7 @@ export interface Project {
     completion_date?: string;
     category_id?: string;
     category?: Category;
+    tags?: string[];
     is_featured: boolean;
     created_at: string;
     updated_at: string;
@@ -179,6 +180,7 @@ export interface TeamMember {
         email?: string;
         [key: string]: string | undefined;
     };
+    icon?: string;
     display_order: number;
     created_at: string;
     updated_at: string;

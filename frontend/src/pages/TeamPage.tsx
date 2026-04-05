@@ -1,16 +1,49 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
-import { Users, Award, Target, Lightbulb } from "lucide-react";
+import { Users, Award, Target, Lightbulb, HelpCircle } from "lucide-react";
+import { useTeam } from "@/hooks/useData";
 
-const teamMembers = [
-  { name: "Nguyễn Văn Hà", role: "Giám đốc điều hành", desc: "Hơn 15 năm kinh nghiệm trong lĩnh vực CNTT và hạ tầng mạng doanh nghiệp.", icon: Target },
-  { name: "Trần Minh Đức", role: "Giám đốc kỹ thuật", desc: "Chuyên gia về giải pháp phần mềm và kiến trúc hệ thống phức tạp.", icon: Lightbulb },
-  { name: "Lê Thị Hương", role: "Trưởng phòng dự án", desc: "Quản lý và triển khai hàng trăm dự án hạ tầng CNTT thành công.", icon: Award },
-  { name: "Phạm Quốc Bảo", role: "Trưởng phòng kỹ thuật", desc: "Chuyên gia mạng và bảo mật với chứng chỉ quốc tế Cisco, Fortinet.", icon: Users },
-  { name: "Hoàng Anh Tuấn", role: "Kỹ sư phần mềm", desc: "Phát triển các giải pháp ERP, CRM và tự động hóa quy trình.", icon: Lightbulb },
-  { name: "Ngô Thanh Mai", role: "Chuyên viên tư vấn", desc: "Tư vấn giải pháp CNTT tối ưu cho doanh nghiệp vừa và nhỏ.", icon: Target },
-];
+const iconMap: Record<string, any> = {
+  Target,
+  Lightbulb,
+  Award,
+  Users,
+};
+
+const TeamGrid = () => {
+  const { data: teamMembers, isLoading } = useTeam();
+
+  if (isLoading) {
+    return (
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-64 bg-white/10 rounded-2xl animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {teamMembers?.map((m, i) => {
+        const Icon = iconMap[m.icon] || HelpCircle;
+        return (
+          <ScrollReveal key={m.id} delay={i * 0.1}>
+            <div className="glass-card rounded-2xl p-8 text-center hover:glow-cyan transition-all duration-300 group">
+              <div className="w-20 h-20 rounded-full bg-secondary/20 flex items-center justify-center mx-auto mb-5 group-hover:bg-secondary/30 transition-colors">
+                <Icon className="w-9 h-9 text-cyan" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-1">{m.name}</h3>
+              <p className="text-cyan text-sm font-medium mb-3">{m.role}</p>
+              <p className="text-white/60 text-sm leading-relaxed">{m.bio}</p>
+            </div>
+          </ScrollReveal>
+        );
+      })}
+    </div>
+  );
+};
 
 const TeamPage = () => (
   <div className="min-h-screen bg-navy">
@@ -29,20 +62,7 @@ const TeamPage = () => (
     {/* Team Grid */}
     <section className="section-padding bg-navy">
       <div className="container mx-auto">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {teamMembers.map((m, i) => (
-            <ScrollReveal key={i} delay={i * 0.1}>
-              <div className="glass-card rounded-2xl p-8 text-center hover:glow-cyan transition-all duration-300 group">
-                <div className="w-20 h-20 rounded-full bg-secondary/20 flex items-center justify-center mx-auto mb-5 group-hover:bg-secondary/30 transition-colors">
-                  <m.icon className="w-9 h-9 text-cyan" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-1">{m.name}</h3>
-                <p className="text-cyan text-sm font-medium mb-3">{m.role}</p>
-                <p className="text-white/60 text-sm leading-relaxed">{m.desc}</p>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
+        <TeamGrid />
       </div>
     </section>
 

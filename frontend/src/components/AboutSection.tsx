@@ -1,17 +1,27 @@
-import { Target, Eye, Heart, Lock, Lightbulb } from "lucide-react";
+import { Target, Eye, Heart, Lock, Lightbulb, HelpCircle } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "@/hooks/useData";
 import aboutBg from "@/assets/about-bg.jpg";
+
+const iconMap: Record<string, any> = {
+  Heart,
+  Target,
+  Eye,
+  Lock,
+  Lightbulb,
+};
 
 const AboutSection = () => {
   const { t } = useTranslation();
+  const { data: settings, isLoading } = useSettings();
 
   const coreValues = [
-    { icon: Heart, label: t("about.trust"), desc: t("about.trustDesc") },
-    { icon: Target, label: t("about.professional"), desc: t("about.professionalDesc") },
-    { icon: Eye, label: t("about.dedicated"), desc: t("about.dedicatedDesc") },
-    { icon: Lock, label: t("about.secure"), desc: t("about.secureDesc") },
-    { icon: Lightbulb, label: t("about.innovative"), desc: t("about.innovativeDesc") },
+    { icon: Heart, label: settings?.about_trust_label || t("about.trust"), desc: settings?.about_trust_desc || t("about.trustDesc") },
+    { icon: Target, label: settings?.about_professional_label || t("about.professional"), desc: settings?.about_professional_desc || t("about.professionalDesc") },
+    { icon: Eye, label: settings?.about_dedicated_label || t("about.dedicated"), desc: settings?.about_dedicated_desc || t("about.dedicatedDesc") },
+    { icon: Lock, label: settings?.about_secure_label || t("about.secure"), desc: settings?.about_secure_desc || t("about.secureDesc") },
+    { icon: Lightbulb, label: settings?.about_innovative_label || t("about.innovative"), desc: settings?.about_innovative_desc || t("about.innovativeDesc") },
   ];
 
   return (
@@ -25,20 +35,20 @@ const AboutSection = () => {
             <ScrollReveal>
               <span className="text-sm font-semibold text-secondary uppercase tracking-widest">{t("about.label")}</span>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-6">
-                {t("about.title")} <span className="text-gradient">{t("about.titleHighlight")}</span>
+                {settings?.about_title || t("about.title")} <span className="text-gradient">{settings?.about_title_highlight || t("about.titleHighlight")}</span>
               </h2>
-              <p className="text-muted-foreground leading-relaxed mb-8">{t("about.desc")}</p>
+              <p className="text-muted-foreground leading-relaxed mb-8">{settings?.about_description || t("about.desc")}</p>
             </ScrollReveal>
             <ScrollReveal delay={0.2}>
               <div className="glass-card rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-foreground mb-3">🎯 {t("about.mission")}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{t("about.missionDesc")}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">{settings?.about_mission || t("about.missionDesc")}</p>
               </div>
             </ScrollReveal>
             <ScrollReveal delay={0.3}>
               <div className="glass-card rounded-2xl p-6 mt-4">
                 <h3 className="text-lg font-bold text-foreground mb-3">🔭 {t("about.vision")}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{t("about.visionDesc")}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">{settings?.about_vision || t("about.visionDesc")}</p>
               </div>
             </ScrollReveal>
           </div>
