@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { settingsService } from '@/services/settingsService';
-import { SiteSetting } from '@/types';
 
 export const useSettings = () => {
     const [settings, setSettings] = useState<Record<string, string>>({});

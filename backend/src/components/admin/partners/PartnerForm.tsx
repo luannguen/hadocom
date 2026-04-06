@@ -20,23 +20,15 @@ import { partnersService } from "@/services/partnersService";
 import { Partner } from "@/types";
 import { useTranslation } from 'react-i18next';
 
-// 1. Definte the shape of the form explicitly to avoid any inference generic issues
-interface PartnerFormValues {
-    name: string;
-    logo_url: string;
-    website_url: string;
-    sort_order: number;
-    is_active: boolean;
-}
-
-// 2. Schema must match the interface perfectly
 const partnerSchema = z.object({
     name: z.string().min(2, "Tên đối tác phải ít nhất 2 ký tự"),
-    logo_url: z.string().default("").or(z.null()).transform((val) => val ?? ""),
-    website_url: z.string().default("").or(z.null()).transform((val) => val ?? ""),
-    sort_order: z.coerce.number().int().default(0),
-    is_active: z.boolean().default(true),
+    logo_url: z.string(),
+    website_url: z.string(),
+    sort_order: z.number().int(),
+    is_active: z.boolean(),
 });
+
+type PartnerFormValues = z.infer<typeof partnerSchema>;
 
 interface PartnerFormProps {
     initialData?: Partner | null;
@@ -52,7 +44,7 @@ export default function PartnerForm({ initialData, onSuccess, onCancel }: Partne
 
     // 3. Apply the generic to useForm and the resolver
     const form = useForm<PartnerFormValues>({
-        resolver: zodResolver(partnerSchema),
+        resolver: zodResolver(partnerSchema) as any,
         defaultValues: {
             name: "",
             logo_url: "",
@@ -96,7 +88,8 @@ export default function PartnerForm({ initialData, onSuccess, onCancel }: Partne
     };
 
     // 4. Use SubmitHandler generic for extra type safety
-    const onSubmit: SubmitHandler<PartnerFormValues> = async (data) => {
+    const onSubmit = async (values: any) => {
+        const data = values as PartnerFormValues;
         setIsLoading(true);
         try {
             const partnerData = {
@@ -133,7 +126,7 @@ export default function PartnerForm({ initialData, onSuccess, onCancel }: Partne
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit((data) => onSubmit(data))} className="space-y-6">
                 <FormField
                     control={form.control}
                     name="name"
