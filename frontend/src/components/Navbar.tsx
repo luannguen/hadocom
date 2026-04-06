@@ -42,6 +42,7 @@ const Navbar = () => {
   const { data: settings } = useSettings();
   const { data: navItems, isLoading: navLoading } = useNavigation('header');
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [exploreOpen, setExploreOpen] = useState(false);
   const [mobileExplore, setMobileExplore] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -94,16 +95,29 @@ const Navbar = () => {
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];
 
   useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setExploreOpen(false);
       if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
     };
+
+    window.addEventListener("scroll", handleScroll);
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mousedown", handler);
+    };
   }, []);
 
   return (
-    <nav className="fixed top-4 left-4 right-4 z-50 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg shadow-black/10">
+    <nav className={`fixed top-4 left-4 right-4 z-50 rounded-2xl transition-all duration-300 border ${
+      scrolled 
+        ? "bg-black/60 backdrop-blur-xl border-white/20 shadow-2xl py-1" 
+        : "bg-white/10 backdrop-blur-md border-white/10 shadow-lg"
+    }`}>
       <div className="container mx-auto flex items-center justify-between h-16 px-6">
         <Link to="/" className="flex items-center gap-2">
           {settings?.logo_url ? (
@@ -140,9 +154,9 @@ const Navbar = () => {
               {t("nav.explore")} <ChevronDown className={`w-4 h-4 transition-transform ${exploreOpen ? "rotate-180" : ""}`} />
             </button>
             {exploreOpen && (
-              <div className="absolute top-full right-0 mt-3 w-48 rounded-xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/20 overflow-hidden animate-fade-in">
+              <div className="absolute top-full right-0 mt-3 w-48 rounded-xl bg-black/80 backdrop-blur-2xl border border-white/10 shadow-2xl overflow-hidden animate-fade-in py-1">
                 {exploreLinks.map(l => (
-                  <Link key={l.href} to={l.href} onClick={() => setExploreOpen(false)} className="block px-5 py-3 text-sm text-white/80 hover:text-cyan hover:bg-white/5 transition-colors">
+                  <Link key={l.href} to={l.href} onClick={() => setExploreOpen(false)} className="block px-5 py-3 text-sm text-white/90 hover:text-cyan hover:bg-white/10 transition-colors">
                     {l.label}
                   </Link>
                 ))}
@@ -157,12 +171,12 @@ const Navbar = () => {
               {currentLang.flag}
             </button>
             {langOpen && (
-              <div className="absolute top-full right-0 mt-3 w-40 rounded-xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/20 overflow-hidden animate-fade-in">
+              <div className="absolute top-full right-0 mt-3 w-40 rounded-xl bg-black/80 backdrop-blur-2xl border border-white/10 shadow-2xl overflow-hidden animate-fade-in py-1">
                 {languages.map(lang => (
                   <button
                     key={lang.code}
                     onClick={() => { i18n.changeLanguage(lang.code); setLangOpen(false); }}
-                    className={`w-full text-left px-5 py-3 text-sm transition-colors flex items-center gap-2 ${lang.code === i18n.language ? "text-cyan bg-white/5" : "text-white/80 hover:text-cyan hover:bg-white/5"}`}
+                    className={`w-full text-left px-5 py-3 text-sm transition-colors flex items-center gap-2 ${lang.code === i18n.language ? "text-cyan bg-white/10" : "text-white/90 hover:text-cyan hover:bg-white/10"}`}
                   >
                     <span>{lang.flag}</span> {lang.label}
                   </button>
