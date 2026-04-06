@@ -503,3 +503,32 @@ export const useNavigation = (position: 'header' | 'footer' = 'header') => {
     },
   });
 };
+export interface StaticPage {
+    id: string;
+    slug: string;
+    title: string;
+    content: any; // jsonb supports both string and object
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+// ... existing hooks
+
+export const useStaticPage = (slug: string) => {
+    return useQuery({
+      queryKey: ["static_page", slug],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from("static_pages")
+          .select("*")
+          .eq("slug", slug)
+          .eq("is_active", true)
+          .single();
+        
+        if (error) throw error;
+        return data as StaticPage;
+      },
+      enabled: !!slug,
+    });
+};

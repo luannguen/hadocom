@@ -190,6 +190,7 @@ export default {
   footer: {
     slogan: "Solid Technology – Reliable Operations – Long-term Partnership",
     links: "Links",
+    legal: "Policies",
     download: "Downloads",
     profilePdf: "Company Profile (PDF)",
   },

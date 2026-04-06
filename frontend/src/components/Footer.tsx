@@ -79,7 +79,14 @@ const Footer = () => {
             </div>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-white mb-3">{t("footer.download")}</h4>
+            <h4 className="text-sm font-semibold text-white mb-3">{t("footer.legal") || "Chính sách"}</h4>
+            <div className="flex flex-col gap-2">
+              <Link to="/chinh-sach" className="text-sm text-white/50 hover:text-cyan transition">Tất cả chính sách</Link>
+              <Link to="/chinh-sach/chinh-sach-bao-mat" className="text-sm text-white/50 hover:text-cyan transition">Bảo mật thông tin</Link>
+              <Link to="/chinh-sach/dieu-khoan-su-dung" className="text-sm text-white/50 hover:text-cyan transition">Điều khoản sử dụng</Link>
+              <Link to="/chinh-sach/chinh-sach-bao-hanh" className="text-sm text-white/50 hover:text-cyan transition">Chính sách bảo hành</Link>
+            </div>
+            <h4 className="text-sm font-semibold text-white mb-3 mt-6">{t("footer.download")}</h4>
             <a href="/HADOCOM-Profile.pdf" download className="text-sm text-cyan hover:text-white transition">
               📄 {t("footer.profilePdf")}
             </a>

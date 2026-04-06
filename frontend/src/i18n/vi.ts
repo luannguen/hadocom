@@ -190,6 +190,7 @@ export default {
   footer: {
     slogan: "Công nghệ vững chắc – Vận hành bền bỉ – Đồng hành dài lâu",
     links: "Liên kết",
+    legal: "Chính sách",
     download: "Tải về",
     profilePdf: "Profile doanh nghiệp (PDF)",
   },

@@ -15,6 +15,7 @@ import EventsPage from "./pages/EventsPage.tsx";
 import RecruitmentPage from "./pages/RecruitmentPage.tsx";
 import FAQsPage from "./pages/FAQsPage.tsx";
 import ProjectDetailPage from "./pages/ProjectDetailPage.tsx";
+import StaticPageDetail from "./pages/StaticPageDetail.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import SEO from "./components/SEO";
 
@@ -35,6 +36,8 @@ const App = () => (
           <Route path="/du-an/:slug" element={<ProjectDetailPage />} />
           <Route path="/doi-ngu" element={<TeamPage />} />
           <Route path="/chinh-sach" element={<PolicyPage />} />
+          <Route path="/chinh-sach/:slug" element={<StaticPageDetail />} />
+          <Route path="/p/:slug" element={<StaticPageDetail />} />
           <Route path="/tin-tuc" element={<NewsPage />} />
           <Route path="/thu-vien" element={<GalleryPage />} />
           <Route path="/su-kien" element={<EventsPage />} />
