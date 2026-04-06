@@ -145,6 +145,20 @@ export interface ServiceInquiry {
     created_at?: string;
 }
 
+export interface EventRegistration {
+    id?: string;
+    event_id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+    company?: string;
+    message?: string;
+    status?: 'pending' | 'confirmed' | 'attended' | 'cancelled';
+    event?: Event;
+    created_at?: string;
+    updated_at?: string;
+}
+
 export interface NavigationItem {
   id: string;
   label: string;
@@ -220,6 +234,24 @@ export const useNews = (categoryId?: string) => {
       if (error) throw error;
       return data as News[];
     },
+  });
+};
+
+export const useNewsBySlug = (slug: string) => {
+  return useQuery({
+    queryKey: ["news", slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("news")
+        .select("*, category:categories(*)")
+        .eq("slug", slug)
+        .eq("status", "published")
+        .single();
+      
+      if (error) throw error;
+      return data as News;
+    },
+    enabled: !!slug,
   });
 };
 
@@ -314,6 +346,43 @@ export const useEvents = (categoryId?: string) => {
             return data as Event[];
         },
     });
+};
+
+export const useEventBySlug = (slug: string) => {
+    return useQuery({
+        queryKey: ["event", slug],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from("events")
+                .select("*, category:categories(*)")
+                .eq("slug", slug)
+                .single();
+            
+            if (error) throw error;
+            return data as Event;
+        },
+        enabled: !!slug,
+    });
+};
+
+export const useRegisterEvent = () => {
+    return async (registration: Omit<EventRegistration, 'id' | 'created_at' | 'updated_at' | 'status'>) => {
+        const { data, error } = await supabase
+            .from("event_registrations")
+            .insert([
+                {
+                    ...registration,
+                    status: 'pending',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }
+            ])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        return data;
+    };
 };
 
 export const useTeam = () => {

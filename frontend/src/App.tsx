@@ -16,8 +16,10 @@ import RecruitmentPage from "./pages/RecruitmentPage.tsx";
 import FAQsPage from "./pages/FAQsPage.tsx";
 import ProjectDetailPage from "./pages/ProjectDetailPage.tsx";
 import StaticPageDetail from "./pages/StaticPageDetail.tsx";
+import EventDetailPage from "./pages/EventDetailPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import SEO from "./components/SEO";
+import NewsDetailPage from "./pages/NewsDetailPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -39,8 +41,10 @@ const App = () => (
           <Route path="/chinh-sach/:slug" element={<StaticPageDetail />} />
           <Route path="/p/:slug" element={<StaticPageDetail />} />
           <Route path="/tin-tuc" element={<NewsPage />} />
+          <Route path="/tin-tuc/:slug" element={<NewsDetailPage />} />
           <Route path="/thu-vien" element={<GalleryPage />} />
           <Route path="/su-kien" element={<EventsPage />} />
+          <Route path="/su-kien/:slug" element={<EventDetailPage />} />
           <Route path="/tuyen-dung" element={<RecruitmentPage />} />
           <Route path="/faq" element={<FAQsPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

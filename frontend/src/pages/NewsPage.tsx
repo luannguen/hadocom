@@ -1,4 +1,5 @@
 import { memo, useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -95,11 +96,13 @@ const NewsPage = () => {
                             {new Date(a.created_at).toLocaleDateString("vi-VN")}
                           </span>
                         </div>
-                        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan transition-colors line-clamp-2">{a.title}</h3>
+                        <Link to={`/tin-tuc/${a.slug}`}>
+                          <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan transition-colors line-clamp-2">{a.title}</h3>
+                        </Link>
                         <p className="text-white/50 text-sm leading-relaxed flex-1 line-clamp-3">{a.excerpt}</p>
-                        <button className="mt-4 flex items-center gap-2 text-cyan text-sm font-medium hover:gap-3 transition-all">
+                        <Link to={`/tin-tuc/${a.slug}`} className="mt-4 flex items-center gap-2 text-cyan text-sm font-medium hover:gap-3 transition-all">
                           Đọc thêm <ArrowRight className="w-4 h-4" />
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </ScrollReveal>

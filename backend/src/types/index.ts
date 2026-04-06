@@ -246,3 +246,17 @@ export interface SiteSetting {
     description?: string;
     updated_at?: string;
 }
+
+export interface EventRegistration {
+    id: string;
+    event_id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+    company?: string;
+    message?: string;
+    status: 'pending' | 'confirmed' | 'attended' | 'cancelled';
+    event?: Event;
+    created_at: string;
+    updated_at: string;
+}
