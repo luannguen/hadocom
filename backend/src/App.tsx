@@ -27,6 +27,7 @@ import TeamPage from './pages/admin/TeamPage';
 import RecruitmentPage from './pages/admin/RecruitmentPage';
 import ApplicationsPage from './pages/admin/ApplicationsPage';
 import EventRegistrationsPage from './pages/admin/EventRegistrationsPage';
+import PartnersPage from './pages/admin/PartnersPage';
 import VisualEditorPage from './pages/admin/VisualEditorPage';
 import ForgotPasswordPage from './components/admin/pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './components/admin/pages/auth/ResetPasswordPage';
@@ -68,6 +69,7 @@ function App() {
               <Route path="achievements" element={<AchievementsPage />} />
               <Route path="faqs" element={<FAQsPage />} />
               <Route path="team" element={<TeamPage />} />
+              <Route path="partners" element={<PartnersPage />} />
               <Route path="recruitment" element={<RecruitmentPage />} />
               <Route path="applications" element={<ApplicationsPage />} />
               <Route path="event-registrations" element={<EventRegistrationsPage />} />

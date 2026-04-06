@@ -50,6 +50,7 @@ const menuGroups: MenuGroup[] = [
             { icon: Mail, label: 'contacts', href: '/contacts' },
             { icon: Users, label: 'team', href: '/team' },
             { icon: Briefcase, label: 'recruitment', href: '/recruitment' },
+            { icon: Users, label: 'partners', href: '/partners' },
             { icon: Users, label: 'applications', href: '/applications' },
             { icon: Calendar, label: 'event_registrations', href: '/event-registrations' },
         ]
