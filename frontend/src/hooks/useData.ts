@@ -99,6 +99,16 @@ export interface NavigationItem {
   created_at?: string;
 }
 
+export interface FAQ {
+    id: string;
+    question: string;
+    answer: string;
+    category: string;
+    sort_order: number;
+    is_active: boolean;
+    created_at?: string;
+}
+
 // Hooks
 export const useServices = () => {
   return useQuery({
@@ -257,6 +267,27 @@ export const useSubmitContact = () => {
         if (error) throw error;
         return data;
     };
+};
+
+export const useFAQs = (category?: string) => {
+  return useQuery({
+    queryKey: ["faqs", category],
+    queryFn: async () => {
+      let query = supabase
+        .from("faqs")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      
+      if (category) {
+        query = query.eq("category", category);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as FAQ[];
+    },
+  });
 };
 
 export const useNavigation = (position: 'header' | 'footer' = 'header') => {

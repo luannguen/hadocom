@@ -11,6 +11,7 @@ import NewsPage from "./pages/NewsPage.tsx";
 import GalleryPage from "./pages/GalleryPage.tsx";
 import EventsPage from "./pages/EventsPage.tsx";
 import RecruitmentPage from "./pages/RecruitmentPage.tsx";
+import FAQsPage from "./pages/FAQsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import SEO from "./components/SEO";
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/thu-vien" element={<GalleryPage />} />
           <Route path="/su-kien" element={<EventsPage />} />
           <Route path="/tuyen-dung" element={<RecruitmentPage />} />
+          <Route path="/faq" element={<FAQsPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

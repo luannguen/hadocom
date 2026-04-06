@@ -64,6 +64,7 @@ const Navbar = () => {
     { label: t("nav.gallery"), href: "/thu-vien" },
     { label: t("nav.events"), href: "/su-kien" },
     { label: t("nav.recruitment"), href: "/tuyen-dung" },
+    { label: t("faq.label"), href: "/faq" },
   ];
 
   // Dynamic Menu Logic
@@ -75,9 +76,18 @@ const Navbar = () => {
         .map(item => ({ label: t(item.label), href: item.path }))
     : defaultMainLinks;
 
-  const exploreLinks = (exploreParentItem && exploreParentItem.children && exploreParentItem.children.length > 0)
-    ? exploreParentItem.children.map(item => ({ label: t(item.label), href: item.path }))
-    : defaultExploreLinks;
+  const exploreLinks = [
+    ...((exploreParentItem && exploreParentItem.children && exploreParentItem.children.length > 0)
+      ? exploreParentItem.children.map(item => ({ label: t(item.label), href: item.path }))
+      : defaultExploreLinks)
+  ];
+
+  // If FAQ is not in exploreLinks and we have dynamic items, add it from default as a safeguard
+  if (exploreParentItem && exploreParentItem.children && exploreParentItem.children.length > 0) {
+    if (!exploreLinks.find(l => l.href === "/faq")) {
+      exploreLinks.push({ label: t("faq.label"), href: "/faq" });
+    }
+  }
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];
 

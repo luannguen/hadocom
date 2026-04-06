@@ -15,6 +15,7 @@ const Footer = () => {
     { label: t("nav.services"), href: "/#services" },
     { label: t("nav.products"), href: "/san-pham" },
     { label: t("nav.contact"), href: "/#contact" },
+    { label: t("faq.label"), href: "/faq" },
   ];
 
   const links = (footerItems && footerItems.length > 0)
