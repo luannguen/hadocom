@@ -2,26 +2,17 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import { useState } from "react";
-import { X } from "lucide-react";
-
-const categories = ["Tất cả", "Hạ tầng mạng", "Phần mềm", "Sự kiện", "Văn phòng"];
-
-const galleryItems = [
-  { src: "🖥️", title: "Triển khai hệ thống Server Room", cat: "Hạ tầng mạng", color: "from-blue-600/30 to-cyan-500/20" },
-  { src: "🔌", title: "Lắp đặt cáp quang khu công nghiệp", cat: "Hạ tầng mạng", color: "from-teal-600/30 to-emerald-500/20" },
-  { src: "💻", title: "Demo phần mềm quản lý kho", cat: "Phần mềm", color: "from-purple-600/30 to-pink-500/20" },
-  { src: "🎤", title: "Hội thảo chuyển đổi số 2026", cat: "Sự kiện", color: "from-amber-600/30 to-orange-500/20" },
-  { src: "📡", title: "Hệ thống WiFi doanh nghiệp", cat: "Hạ tầng mạng", color: "from-indigo-600/30 to-blue-500/20" },
-  { src: "🏢", title: "Văn phòng HADOCOM tại TP.HCM", cat: "Văn phòng", color: "from-slate-600/30 to-gray-500/20" },
-  { src: "📊", title: "Phần mềm ERP tùy chỉnh", cat: "Phần mềm", color: "from-rose-600/30 to-red-500/20" },
-  { src: "🏗️", title: "Thi công hạ tầng camera AI", cat: "Hạ tầng mạng", color: "from-cyan-600/30 to-sky-500/20" },
-  { src: "🎉", title: "Kỷ niệm thành lập công ty", cat: "Sự kiện", color: "from-yellow-600/30 to-amber-500/20" },
-];
+import { X, ImageIcon } from "lucide-react";
+import { useProjects, useCategories } from "@/hooks/useData";
 
 const GalleryPage = () => {
-  const [active, setActive] = useState("Tất cả");
-  const [lightbox, setLightbox] = useState<number | null>(null);
-  const filtered = active === "Tất cả" ? galleryItems : galleryItems.filter(g => g.cat === active);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | undefined>(undefined);
+  const { data: categories } = useCategories('project');
+  const { data: projects, isLoading } = useProjects(activeCategoryId);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const galleryItems = projects || [];
+  const selectedItem = lightboxIndex !== null ? galleryItems[lightboxIndex] : null;
 
   return (
     <div className="min-h-screen bg-navy">
@@ -40,50 +31,84 @@ const GalleryPage = () => {
           {/* Filter */}
           <ScrollReveal>
             <div className="flex flex-wrap justify-center gap-3 mb-12">
-              {categories.map(c => (
+              <button
+                onClick={() => setActiveCategoryId(undefined)}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${!activeCategoryId ? "bg-secondary text-secondary-foreground shadow-lg shadow-secondary/30" : "glass-card text-white/70 hover:text-white"}`}
+              >
+                Tất cả
+              </button>
+              {categories?.map(c => (
                 <button
-                  key={c}
-                  onClick={() => setActive(c)}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${active === c ? "bg-secondary text-secondary-foreground shadow-lg shadow-secondary/30" : "glass-card text-white/70 hover:text-white"}`}
+                  key={c.id}
+                  onClick={() => setActiveCategoryId(c.id)}
+                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${activeCategoryId === c.id ? "bg-secondary text-secondary-foreground shadow-lg shadow-secondary/30" : "glass-card text-white/70 hover:text-white"}`}
                 >
-                  {c}
+                  {c.name}
                 </button>
               ))}
             </div>
           </ScrollReveal>
 
           {/* Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((item, i) => (
-              <ScrollReveal key={`${active}-${i}`} delay={i * 0.08}>
-                <div
-                  onClick={() => setLightbox(i)}
-                  className="glass-card rounded-2xl overflow-hidden cursor-pointer hover:glow-cyan transition-all duration-300 group"
-                >
-                  <div className={`h-56 bg-gradient-to-br ${item.color} flex items-center justify-center`}>
-                    <span className="text-7xl group-hover:scale-110 transition-transform">{item.src}</span>
-                  </div>
-                  <div className="p-5">
-                    <p className="text-xs text-cyan font-medium mb-1">{item.cat}</p>
-                    <h3 className="text-white font-semibold">{item.title}</h3>
-                  </div>
+          {isLoading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="h-64 bg-white/5 rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {galleryItems.length === 0 ? (
+                <div className="col-span-full text-center py-20">
+                  <ImageIcon className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                  <p className="text-white/50">Không tìm thấy hình ảnh nào trong danh mục này.</p>
                 </div>
-              </ScrollReveal>
-            ))}
-          </div>
+              ) : (
+                galleryItems.map((item, i) => (
+                  <ScrollReveal key={item.id} delay={i * 0.08}>
+                    <div
+                      onClick={() => setLightboxIndex(i)}
+                      className="glass-card rounded-2xl overflow-hidden cursor-pointer hover:glow-cyan transition-all duration-300 group"
+                    >
+                      <div className="h-56 bg-slate-800 flex items-center justify-center overflow-hidden">
+                        {item.image_url ? (
+                          <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        ) : (
+                          <ImageIcon className="w-12 h-12 text-white/20" />
+                        )}
+                      </div>
+                      <div className="p-5">
+                        <p className="text-xs text-cyan font-medium mb-1">{item.category?.name || 'Dự án'}</p>
+                        <h3 className="text-white font-semibold line-clamp-1">{item.title}</h3>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Lightbox */}
-      {lightbox !== null && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setLightbox(null)}>
-          <div className="glass-card rounded-3xl p-8 max-w-lg w-full text-center" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setLightbox(null)} className="absolute top-6 right-6 text-white/60 hover:text-white"><X className="w-6 h-6" /></button>
-            <div className={`h-64 bg-gradient-to-br ${filtered[lightbox].color} rounded-2xl flex items-center justify-center mb-6`}>
-              <span className="text-8xl">{filtered[lightbox].src}</span>
+      {selectedItem && (
+        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4" onClick={() => setLightboxIndex(null)}>
+          <div className="relative glass-card rounded-3xl p-4 max-w-4xl w-full text-center overflow-hidden" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setLightboxIndex(null)} className="absolute top-4 right-4 z-10 bg-black/50 p-2 rounded-full text-white/60 hover:text-white transition-colors">
+              <X className="w-6 h-6" />
+            </button>
+            <div className="max-h-[70vh] rounded-2xl flex items-center justify-center mb-6 overflow-hidden">
+               {selectedItem.image_url ? (
+                  <img src={selectedItem.image_url} alt={selectedItem.title} className="max-w-full max-h-full object-contain" />
+               ) : (
+                  <ImageIcon className="w-24 h-24 text-white/10" />
+               )}
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">{filtered[lightbox].title}</h3>
-            <p className="text-cyan text-sm">{filtered[lightbox].cat}</p>
+            <div className="px-4 pb-4">
+              <h3 className="text-xl font-bold text-white mb-2">{selectedItem.title}</h3>
+              <p className="text-cyan text-sm mb-4">{selectedItem.category?.name || 'Dự án'}</p>
+              <p className="text-white/60 text-sm max-w-2xl mx-auto">{selectedItem.description}</p>
+            </div>
           </div>
         </div>
       )}

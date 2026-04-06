@@ -2,6 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
 // Interfaces
+export type ContentType = 'product' | 'event' | 'news' | 'project';
+
+export interface Category {
+    id: string;
+    name: string;
+    slug: string;
+    type: ContentType;
+    description?: string;
+}
+
 export interface Service {
   id: string;
   slug: string;
@@ -19,7 +29,9 @@ export interface News {
   excerpt: string;
   content: string;
   image_url: string;
-  tag?: string;
+  category_id?: string;
+  category?: Category;
+  tag?: string; // Legacy support
   created_at: string;
 }
 
@@ -28,7 +40,8 @@ export interface Product {
     name: string;
     description: string;
     icon?: string;
-    category: 'infrastructure' | 'software';
+    category_id?: string;
+    category?: Category | string; // Support both for now
 }
 
 export interface Project {
@@ -36,7 +49,25 @@ export interface Project {
     title: string;
     description: string;
     image_url: string;
+    category_id?: string;
+    category?: Category;
     tags: string[];
+}
+
+export interface Event {
+    id: string;
+    title: string;
+    slug: string;
+    summary: string;
+    content: string;
+    image_url: string;
+    start_date: string;
+    end_date?: string;
+    location: string;
+    status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+    category_id?: string;
+    category?: Category;
+    created_at: string;
 }
 
 export interface TeamMember {
@@ -110,6 +141,26 @@ export interface FAQ {
 }
 
 // Hooks
+export const useCategories = (type?: ContentType) => {
+    return useQuery({
+        queryKey: ["categories", type],
+        queryFn: async () => {
+            let query = supabase
+                .from("categories")
+                .select("*")
+                .order("name");
+            
+            if (type) {
+                query = query.eq("type", type);
+            }
+            
+            const { data, error } = await query;
+            if (error) throw error;
+            return data as Category[];
+        },
+    });
+};
+
 export const useServices = () => {
   return useQuery({
     queryKey: ["services"],
@@ -124,44 +175,82 @@ export const useServices = () => {
   });
 };
 
-export const useNews = () => {
+export const useNews = (categoryId?: string) => {
   return useQuery({
-    queryKey: ["news"],
+    queryKey: ["news", categoryId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("news")
-        .select("*")
+        .select("*, category:categories(*)")
         .eq("status", "published")
         .order("created_at", { ascending: false });
+      
+      if (categoryId) {
+        query = query.eq("category_id", categoryId);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data as News[];
     },
   });
 };
 
-export const useProducts = () => {
+export const useProducts = (categoryId?: string) => {
     return useQuery({
-      queryKey: ["products"],
+      queryKey: ["products", categoryId],
       queryFn: async () => {
-        const { data, error } = await supabase
+        let query = supabase
           .from("products")
-          .select("*");
+          .select("*, category:categories(*)");
+        
+        if (categoryId) {
+          query = query.eq("category_id", categoryId);
+        }
+
+        const { data, error } = await query;
         if (error) throw error;
         return data as Product[];
       },
     });
 };
 
-export const useProjects = () => {
+export const useProjects = (categoryId?: string) => {
     return useQuery({
-      queryKey: ["projects"],
+      queryKey: ["projects", categoryId],
       queryFn: async () => {
-        const { data, error } = await supabase
+        let query = supabase
           .from("projects")
-          .select("*");
+          .select("*, category:categories(*)");
+        
+        if (categoryId) {
+          query = query.eq("category_id", categoryId);
+        }
+
+        const { data, error } = await query;
         if (error) throw error;
         return data as Project[];
       },
+    });
+};
+
+export const useEvents = (categoryId?: string) => {
+    return useQuery({
+        queryKey: ["events", categoryId],
+        queryFn: async () => {
+            let query = supabase
+                .from("events")
+                .select("*, category:categories(*)")
+                .order("start_date", { ascending: false });
+            
+            if (categoryId) {
+                query = query.eq("category_id", categoryId);
+            }
+
+            const { data, error } = await query;
+            if (error) throw error;
+            return data as Event[];
+        },
     });
 };
 
