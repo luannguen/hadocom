@@ -31,10 +31,13 @@ import VisualEditorPage from './pages/admin/VisualEditorPage';
 import ForgotPasswordPage from './components/admin/pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './components/admin/pages/auth/ResetPasswordPage';
 
+import AdminBranding from './components/admin/AdminBranding';
+
 
 function App() {
   return (
     <BrowserRouter>
+      <AdminBranding />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

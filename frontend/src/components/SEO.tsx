@@ -12,8 +12,13 @@ const SEO = () => {
       document.title = siteTagline ? `${siteTitle} - ${siteTagline}` : siteTitle;
 
       // Update Favicon
-      const favicon = document.querySelector('link[rel="icon"]');
-      if (favicon && settings.favicon_url) {
+      let favicon = document.querySelector('link[rel="icon"]') || document.querySelector('link[rel="shortcut icon"]');
+      if (settings.favicon_url) {
+        if (!favicon) {
+          favicon = document.createElement('link');
+          favicon.setAttribute('rel', 'icon');
+          document.head.appendChild(favicon);
+        }
         favicon.setAttribute('href', settings.favicon_url);
       }
 
