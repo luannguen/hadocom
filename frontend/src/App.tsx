@@ -12,12 +12,14 @@ import GalleryPage from "./pages/GalleryPage.tsx";
 import EventsPage from "./pages/EventsPage.tsx";
 import RecruitmentPage from "./pages/RecruitmentPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import SEO from "./components/SEO";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <SEO />
       <Toaster />
       <Sonner />
       <BrowserRouter>

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Menu, X, Phone, Download, ChevronDown, Globe } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "@/hooks/useData";
+import { useSettings, useNavigation } from "@/hooks/useData";
 
 const languages = [
   { code: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
@@ -40,6 +40,7 @@ const NavLinkItem = ({ label, href, onClick }: { label: string; href: string; on
 const Navbar = () => {
   const { t, i18n } = useTranslation();
   const { data: settings } = useSettings();
+  const { data: navItems, isLoading: navLoading } = useNavigation('header');
   const [open, setOpen] = useState(false);
   const [exploreOpen, setExploreOpen] = useState(false);
   const [mobileExplore, setMobileExplore] = useState(false);
@@ -47,7 +48,7 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
 
-  const mainLinks = [
+  const defaultMainLinks = [
     { label: t("nav.about"), href: "/#about" },
     { label: t("nav.services"), href: "/#services" },
     { label: t("nav.products"), href: "/san-pham" },
@@ -56,7 +57,7 @@ const Navbar = () => {
     { label: t("nav.contact"), href: "/#contact" },
   ];
 
-  const exploreLinks = [
+  const defaultExploreLinks = [
     { label: t("nav.team"), href: "/doi-ngu" },
     { label: t("nav.policy"), href: "/chinh-sach" },
     { label: t("nav.news"), href: "/tin-tuc" },
@@ -64,6 +65,19 @@ const Navbar = () => {
     { label: t("nav.events"), href: "/su-kien" },
     { label: t("nav.recruitment"), href: "/tuyen-dung" },
   ];
+
+  // Dynamic Menu Logic
+  const exploreParentItem = navItems?.find(item => item.label === 'nav.explore');
+  
+  const mainLinks = (navItems && navItems.length > 0) 
+    ? navItems
+        .filter(item => !item.parent_id && item.label !== 'nav.explore')
+        .map(item => ({ label: t(item.label), href: item.path }))
+    : defaultMainLinks;
+
+  const exploreLinks = (exploreParentItem && exploreParentItem.children && exploreParentItem.children.length > 0)
+    ? exploreParentItem.children.map(item => ({ label: t(item.label), href: item.path }))
+    : defaultExploreLinks;
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];
 
@@ -79,8 +93,29 @@ const Navbar = () => {
   return (
     <nav className="fixed top-4 left-4 right-4 z-50 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg shadow-black/10">
       <div className="container mx-auto flex items-center justify-between h-16 px-6">
-        <Link to="/" className="text-2xl font-bold tracking-wider text-white">
-          HADO<span className="text-cyan">COM</span>
+        <Link to="/" className="flex items-center gap-2">
+          {settings?.logo_url ? (
+            <img 
+              src={settings.logo_url} 
+              alt={settings?.site_title || "HADOCOM"} 
+              className="h-10 w-auto object-contain"
+              onError={(e) => {
+                // Fallback to text if image fails to load
+                (e.target as HTMLImageElement).style.display = 'none';
+                const parent = (e.target as HTMLElement).parentElement;
+                if (parent && !parent.querySelector('.text-logo')) {
+                  const span = document.createElement('span');
+                  span.className = 'text-logo text-2xl font-bold tracking-wider text-white';
+                  span.innerHTML = 'HADO<span class="text-cyan">COM</span>';
+                  parent.appendChild(span);
+                }
+              }}
+            />
+          ) : (
+            <span className="text-2xl font-bold tracking-wider text-white">
+              HADO<span className="text-cyan">COM</span>
+            </span>
+          )}
         </Link>
 
         {/* Desktop */}

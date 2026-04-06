@@ -87,6 +87,18 @@ export interface SiteSetting {
     value: string;
 }
 
+export interface NavigationItem {
+  id: string;
+  label: string;
+  path: string;
+  parent_id?: string;
+  order_index: number;
+  is_active: boolean;
+  position?: 'header' | 'footer';
+  children?: NavigationItem[];
+  created_at?: string;
+}
+
 // Hooks
 export const useServices = () => {
   return useQuery({
@@ -245,4 +257,41 @@ export const useSubmitContact = () => {
         if (error) throw error;
         return data;
     };
+};
+
+export const useNavigation = (position: 'header' | 'footer' = 'header') => {
+  return useQuery({
+    queryKey: ["navigation", position],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("navigation")
+        .select("*")
+        .eq("position", position)
+        .eq("is_active", true)
+        .order("order_index", { ascending: true });
+
+      if (error) throw error;
+
+      // Build tree structure
+      const itemMap: Record<string, NavigationItem> = {};
+      const roots: NavigationItem[] = [];
+
+      const items = data as NavigationItem[];
+
+      items.forEach(item => {
+        itemMap[item.id] = { ...item, children: [] };
+      });
+
+      items.forEach(item => {
+        const mappedItem = itemMap[item.id];
+        if (item.parent_id && itemMap[item.parent_id]) {
+          itemMap[item.parent_id].children?.push(mappedItem);
+        } else if (!item.parent_id) {
+          roots.push(mappedItem);
+        }
+      });
+
+      return roots;
+    },
+  });
 };
