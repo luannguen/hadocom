@@ -144,6 +144,21 @@ export const serviceService = {
     },
 
     // Inquiries
+    async createInquiry(inquiry: Omit<ServiceInquiry, 'id' | 'created_at' | 'updated_at' | 'status'>): Promise<Result<ServiceInquiry>> {
+        try {
+            const { data, error } = await supabase
+                .from('service_inquiries')
+                .insert([{ ...inquiry, status: 'pending' }])
+                .select()
+                .single();
+
+            if (error) return failure(error.message, ErrorCodes.DB_ERROR);
+            return success(data);
+        } catch (err: any) {
+            return failure(err.message, ErrorCodes.UNKNOWN_ERROR);
+        }
+    },
+
     async getInquiries(): Promise<Result<ServiceInquiry[]>> {
         try {
             const { data, error } = await supabase

@@ -118,6 +118,18 @@ export interface SiteSetting {
     value: string;
 }
 
+export interface ServiceInquiry {
+    id?: string;
+    service_id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+    company_name?: string;
+    message?: string;
+    status: 'pending' | 'processing' | 'completed' | 'cancelled';
+    created_at?: string;
+}
+
 export interface NavigationItem {
   id: string;
   label: string;
@@ -300,6 +312,31 @@ export const useApplyJob = () => {
         if (error) throw error;
         return data;
     };
+};
+
+export const useCreateInquiry = () => {
+    const submitInquiry = async (inquiry: Omit<ServiceInquiry, 'id' | 'created_at' | 'status'>) => {
+        const { data, error } = await supabase
+            .from("service_inquiries")
+            .insert([
+                {
+                    service_id: inquiry.service_id,
+                    name: inquiry.full_name,
+                    email: inquiry.email,
+                    phone: inquiry.phone,
+                    company: inquiry.company_name,
+                    message: inquiry.message,
+                    status: 'pending',
+                    created_at: new Date().toISOString()
+                }
+            ])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        return data;
+    };
+    return { submitInquiry };
 };
 
 export const useBanner = (position: string = 'home_main') => {

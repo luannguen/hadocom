@@ -33,6 +33,7 @@ export default {
     fullName: "Full Name",
     email: "Email",
     phone: "Phone Number",
+    companyName: "Company Name",
     cvUrl: "CV Link (Google Drive/Dropbox...)",
     message: "Cover Letter (optional)",
     submit: "Submit Application",
@@ -110,6 +111,7 @@ export default {
     maintenanceF2: "24/7 Incident Response",
     maintenanceF3: "Remote Monitoring",
     maintenanceF4: "Backup & Recovery",
+    cta: "Request Consultation",
   },
   advantages: {
     label: "Advantages",

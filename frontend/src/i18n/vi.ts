@@ -33,6 +33,7 @@ export default {
     fullName: "Họ và tên",
     email: "Email",
     phone: "Số điện thoại",
+    companyName: "Tên công ty",
     cvUrl: "Link CV (Google Drive/Dropbox...)",
     message: "Thư giới thiệu (không bắt buộc)",
     submit: "Nộp hồ sơ",
@@ -110,6 +111,7 @@ export default {
     maintenanceF2: "Xử lý sự cố 24/7",
     maintenanceF3: "Giám sát từ xa",
     maintenanceF4: "Sao lưu & khôi phục",
+    cta: "Yêu cầu tư vấn",
   },
   advantages: {
     label: "Lợi thế",

@@ -1,7 +1,12 @@
-import { Server, Code, Wrench, ShieldCheck, HelpCircle } from "lucide-react";
+import { Server, Code, Wrench, ShieldCheck, HelpCircle, ArrowRight } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
 import { useTranslation } from "react-i18next";
 import { useServices } from "@/hooks/useData";
+import { useState } from "react";
+import ServiceInquiryModal from "./ServiceInquiryModal";
+import { Button } from "./ui/button";
+
+// Assets
 import techPattern from "@/assets/tech-pattern.jpg";
 import infrastructureBg from "@/assets/infrastructure-bg.jpg";
 import softwareBg from "@/assets/software-bg.jpg";
@@ -22,6 +27,13 @@ const imageMap: Record<string, string> = {
 const ServicesSection = () => {
   const { t } = useTranslation();
   const { data: services, isLoading } = useServices();
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
+
+  const handleInquiryClick = (serviceId: string) => {
+    setSelectedServiceId(serviceId);
+    setInquiryOpen(true);
+  };
 
   if (isLoading) {
     return (
@@ -62,7 +74,7 @@ const ServicesSection = () => {
             
             return (
               <ScrollReveal key={service.id} delay={i * 0.15}>
-                <div className="relative overflow-hidden bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl hover:bg-white/15 hover:border-white/25 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
+                <div className="relative h-full flex flex-col overflow-hidden bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl hover:bg-white/15 hover:border-white/25 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
                   <div className="relative h-40 overflow-hidden">
                     <img src={displayImage} alt={service.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-navy/90 to-transparent" />
@@ -72,10 +84,10 @@ const ServicesSection = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="p-6">
+                  <div className="p-6 flex-grow flex flex-col">
                     <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
                     <p className="text-white/70 text-sm mb-6 leading-relaxed">{service.description}</p>
-                    <ul className="space-y-2">
+                    <ul className="space-y-2 mb-8 flex-grow">
                       {service.features?.map((f, j) => (
                         <li key={j} className="flex items-center gap-2 text-sm text-white/80">
                           <ShieldCheck className="w-4 h-4 text-secondary flex-shrink-0" />
@@ -83,6 +95,14 @@ const ServicesSection = () => {
                         </li>
                       ))}
                     </ul>
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-cyan/30 text-cyan hover:bg-cyan hover:text-navy group/btn transition-all duration-300"
+                      onClick={() => handleInquiryClick(service.id)}
+                    >
+                      {t("services.cta")}
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                    </Button>
                   </div>
                 </div>
               </ScrollReveal>
@@ -90,6 +110,12 @@ const ServicesSection = () => {
           })}
         </div>
       </div>
+
+      <ServiceInquiryModal 
+        isOpen={inquiryOpen} 
+        onOpenChange={setInquiryOpen} 
+        selectedServiceId={selectedServiceId} 
+      />
     </section>
   );
 };
