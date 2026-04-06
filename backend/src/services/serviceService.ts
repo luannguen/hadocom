@@ -163,7 +163,7 @@ export const serviceService = {
         try {
             const { data, error } = await supabase
                 .from('service_inquiries')
-                .select('*, full_name:name, company_name:company, service:services(title)')
+                .select('*, full_name:name, company_name:company, service:services(title), product:products(name)')
                 .order('created_at', { ascending: false });
 
             if (error) return failure(error.message, ErrorCodes.DB_ERROR);

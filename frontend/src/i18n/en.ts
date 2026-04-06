@@ -2,7 +2,8 @@ export default {
   nav: {
     about: "About Us",
     services: "Services",
-    products: "Products & Projects",
+    products: "Products",
+    projects: "Projects",
     advantages: "Advantages",
     partners: "Partners",
     contact: "Contact",

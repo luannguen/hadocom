@@ -38,20 +38,34 @@ export interface News {
 export interface Product {
     id: string;
     name: string;
-    description: string;
-    icon?: string;
+    slug: string;
+    description?: string;
     category_id?: string;
-    category?: Category | string; // Support both for now
+    category?: Category;
+    price?: number;
+    is_new: boolean;
+    is_bestseller: boolean;
+    image_url?: string;
+    features?: string[];
+    specifications?: Record<string, string>;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface Project {
     id: string;
-    title: string;
+    title?: string; // Support for old title column
+    name: string;   // Correct column name
+    slug: string;
     description: string;
+    content?: string;
     image_url: string;
+    client?: string;
+    completion_date?: string;
     category_id?: string;
     category?: Category;
     tags: string[];
+    is_featured: boolean;
 }
 
 export interface Event {
@@ -120,7 +134,8 @@ export interface SiteSetting {
 
 export interface ServiceInquiry {
     id?: string;
-    service_id: string;
+    service_id?: string;
+    product_id?: string;
     full_name: string;
     email: string;
     phone: string;
@@ -227,13 +242,31 @@ export const useProducts = (categoryId?: string) => {
     });
 };
 
+export const useProductBySlug = (slug: string) => {
+  return useQuery({
+    queryKey: ["product", slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*, category:categories(*)")
+        .eq("slug", slug)
+        .single();
+      
+      if (error) throw error;
+      return data as Product;
+    },
+    enabled: !!slug,
+  });
+};
+
 export const useProjects = (categoryId?: string) => {
     return useQuery({
       queryKey: ["projects", categoryId],
       queryFn: async () => {
         let query = supabase
           .from("projects")
-          .select("*, category:categories(*)");
+          .select("*, category:categories(*)")
+          .order("created_at", { ascending: false });
         
         if (categoryId) {
           query = query.eq("category_id", categoryId);
@@ -244,6 +277,23 @@ export const useProjects = (categoryId?: string) => {
         return data as Project[];
       },
     });
+};
+
+export const useProjectBySlug = (slug: string) => {
+  return useQuery({
+    queryKey: ["project", slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*, category:categories(*)")
+        .eq("slug", slug)
+        .single();
+      
+      if (error) throw error;
+      return data as Project;
+    },
+    enabled: !!slug,
+  });
 };
 
 export const useEvents = (categoryId?: string) => {
@@ -321,6 +371,7 @@ export const useCreateInquiry = () => {
             .insert([
                 {
                     service_id: inquiry.service_id,
+                    product_id: inquiry.product_id,
                     name: inquiry.full_name,
                     email: inquiry.email,
                     phone: inquiry.phone,

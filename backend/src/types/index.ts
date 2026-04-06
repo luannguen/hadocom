@@ -74,7 +74,8 @@ export interface ServiceCategory {
 
 export interface ServiceInquiry {
   id: string;
-  service_id: string;
+  service_id?: string;
+  product_id?: string;
   full_name: string;
   email: string;
   phone: string;
@@ -82,6 +83,7 @@ export interface ServiceInquiry {
   message?: string;
   status: 'pending' | 'processing' | 'completed' | 'cancelled';
   service?: Service;
+  product?: Product;
   created_at: string;
   updated_at?: string;
 }
@@ -130,6 +132,26 @@ export interface Project {
     category?: Category;
     is_featured: boolean;
     tags?: string[];
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface Product {
+    id: string;
+    name: string;
+    slug: string;
+    category_id: string;
+    price: number;
+    image_url: string;
+    description: string;
+    is_new: boolean;
+    is_bestseller: boolean;
+    features: string[];
+    specifications: Record<string, any>;
+    category?: {
+        id: string;
+        name: string;
+    };
     created_at?: string;
     updated_at?: string;
 }

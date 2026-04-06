@@ -4,7 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
-import ProductsPage from "./pages/ProductsPage.tsx";
+import ProductListPage from "./pages/ProductListPage.tsx";
+import ProductDetailPage from "./pages/ProductDetailPage.tsx";
+import ProjectsPage from "./pages/ProjectsPage.tsx";
 import TeamPage from "./pages/TeamPage.tsx";
 import PolicyPage from "./pages/PolicyPage.tsx";
 import NewsPage from "./pages/NewsPage.tsx";
@@ -12,6 +14,7 @@ import GalleryPage from "./pages/GalleryPage.tsx";
 import EventsPage from "./pages/EventsPage.tsx";
 import RecruitmentPage from "./pages/RecruitmentPage.tsx";
 import FAQsPage from "./pages/FAQsPage.tsx";
+import ProjectDetailPage from "./pages/ProjectDetailPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import SEO from "./components/SEO";
 
@@ -26,7 +29,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/san-pham" element={<ProductsPage />} />
+          <Route path="/san-pham" element={<ProductListPage />} />
+          <Route path="/san-pham/:slug" element={<ProductDetailPage />} />
+          <Route path="/du-an" element={<ProjectsPage />} />
+          <Route path="/du-an/:slug" element={<ProjectDetailPage />} />
           <Route path="/doi-ngu" element={<TeamPage />} />
           <Route path="/chinh-sach" element={<PolicyPage />} />
           <Route path="/tin-tuc" element={<NewsPage />} />

@@ -114,7 +114,7 @@ export default function ServiceInquiriesPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Khách hàng</TableHead>
-              <TableHead>Dịch vụ</TableHead>
+              <TableHead>Dịch vụ / Sản phẩm</TableHead>
               <TableHead>Ngày gửi</TableHead>
               <TableHead>Trạng thái</TableHead>
               <TableHead className="text-right">Thao tác</TableHead>
@@ -134,7 +134,9 @@ export default function ServiceInquiriesPage() {
                       <span className="text-xs text-muted-foreground">{inquiry.email}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{inquiry.service?.title || "Dịch vụ khác"}</TableCell>
+                  <TableCell>
+                    {inquiry.service?.title || inquiry.product?.name || "Thông tin khác"}
+                  </TableCell>
                   <TableCell>{new Date(inquiry.created_at).toLocaleDateString("vi-VN")}</TableCell>
                   <TableCell>{getStatusBadge(inquiry.status)}</TableCell>
                   <TableCell className="text-right">
@@ -201,8 +203,12 @@ export default function ServiceInquiriesPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium">Dịch vụ quan tâm</p>
-                <p className="text-sm text-muted-foreground">{selectedInquiry.service?.title || "Thông tin khác"}</p>
+                <p className="text-sm font-medium">Đối tượng quan tâm</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedInquiry.service?.title ? `Dịch vụ: ${selectedInquiry.service.title}` : 
+                   selectedInquiry.product?.name ? `Sản phẩm: ${selectedInquiry.product.name}` : 
+                   "Thông tin khác"}
+                </p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium">Lời nhắn</p>

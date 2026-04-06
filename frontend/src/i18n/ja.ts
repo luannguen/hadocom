@@ -2,7 +2,8 @@ export default {
   nav: {
     about: "会社概要",
     services: "サービス",
-    products: "製品＆プロジェクト",
+    products: "製品",
+    projects: "プロジェクト",
     advantages: "強み",
     partners: "パートナー",
     contact: "お問い合わせ",

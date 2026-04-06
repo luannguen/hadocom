@@ -2,7 +2,8 @@ export default {
   nav: {
     about: "Về chúng tôi",
     services: "Dịch vụ",
-    products: "Sản phẩm & Dự án",
+    products: "Sản phẩm",
+    projects: "Dự án",
     advantages: "Lợi thế",
     partners: "Đối tác",
     contact: "Liên hệ",

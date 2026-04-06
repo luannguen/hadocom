@@ -52,12 +52,14 @@ const Navbar = () => {
     { label: t("nav.about"), href: "/#about" },
     { label: t("nav.services"), href: "/#services" },
     { label: t("nav.products"), href: "/san-pham" },
+    { label: t("nav.projects"), href: "/du-an" },
     { label: t("nav.advantages"), href: "/#advantages" },
     { label: t("nav.partners"), href: "/#partners" },
     { label: t("nav.contact"), href: "/#contact" },
   ];
 
   const defaultExploreLinks = [
+    { label: t("nav.products"), href: "/san-pham" },
     { label: t("nav.team"), href: "/doi-ngu" },
     { label: t("nav.policy"), href: "/chinh-sach" },
     { label: t("nav.news"), href: "/tin-tuc" },
